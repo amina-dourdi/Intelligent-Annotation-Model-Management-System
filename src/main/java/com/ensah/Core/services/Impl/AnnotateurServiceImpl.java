@@ -1,8 +1,12 @@
 package com.ensah.Core.services.Impl;
 
 
+import com.ensah.Core.dao.IAnnotateurRepository;
+import com.ensah.Core.dao.IRoleRepository;
+import com.ensah.Core.dao.IUtilisateurRepository;
 import com.ensah.Core.model.Annotateur;
 
+import com.ensah.Core.model.Role;
 import com.ensah.Core.services.IAnnotateurService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -16,8 +20,8 @@ import java.util.Optional;
 @Transactional
 public class AnnotateurServiceImpl implements IAnnotateurService {
 
-    private  IAnnotateurRepository annotateurRepository;
-    private  IUtilisateurRepository utilisateurRepository;
+    private IAnnotateurRepository annotateurRepository;
+    private IUtilisateurRepository utilisateurRepository;
     private  IRoleRepository roleRepository;
     private  PasswordEncoder passwordEncoder;
 
@@ -32,7 +36,7 @@ public class AnnotateurServiceImpl implements IAnnotateurService {
     }
 
     @Override
-    public List<<Annotateur> listerAnnotateursActifs() {
+    public List<Annotateur> listerAnnotateursActifs() {
         return annotateurRepository.findByActifTrue();
     }
 
