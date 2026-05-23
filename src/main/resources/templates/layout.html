@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${pageTitle} ?: 'Annotation Platform'">Annotation Platform</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans antialiased">
+
+<div class="flex h-screen overflow-hidden">
+    <!-- Sidebar -->
+    <aside class="w-64 bg-slate-900 text-white flex flex-col shadow-xl">
+        <div class="p-6 border-b border-slate-700">
+            <h1 class="text-xl font-bold tracking-wide">
+                <i class="fas fa-tags mr-2 text-emerald-400"></i>NLP Annot
+            </h1>
+        </div>
+
+        <nav class="flex-1 p-4 space-y-2" sec:authorize="hasRole('ADMIN')">
+            <a th:href="@{/admin/dashboard}"
+               class="flex items-center px-4 py-3 rounded-lg hover:bg-slate-800 transition-colors">
+                <i class="fas fa-chart-line w-6 text-emerald-400"></i>
+                <span>Tableau de bord</span>
+            </a>
+            <a th:href="@{/admin/datasets}"
+               class="flex items-center px-4 py-3 rounded-lg hover:bg-slate-800 transition-colors">
+                <i class="fas fa-database w-6 text-blue-400"></i>
+                <span>Datasets</span>
+            </a>
+            <a th:href="@{/admin/annotateurs}"
+               class="flex items-center px-4 py-3 rounded-lg hover:bg-slate-800 transition-colors">
+                <i class="fas fa-users w-6 text-amber-400"></i>
+                <span>Annotateurs</span>
+            </a>
+        </nav>
+
+        <div class="p-4 border-t border-slate-700">
+            <form th:action="@{/logout}" method="post">
+                <button type="submit"
+                        class="w-full flex items-center px-4 py-2 rounded-lg hover:bg-slate-800 transition-colors text-red-400">
+                    <i class="fas fa-sign-out-alt w-6"></i>
+                    <span>Déconnexion</span>
+                </button>
+            </form>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 overflow-y-auto">
+        <!-- Top bar -->
+        <header class="bg-white shadow-sm border-b border-slate-200 px-8 py-4 flex justify-between items-center">
+            <h2 class="text-2xl font-semibold text-slate-700" th:text="${pageTitle}">Titre</h2>
+            <div class="flex items-center gap-3">
+                <span class="text-sm text-slate-500" sec:authentication="name">Admin</span>
+                <div class="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center text-white font-bold text-sm">
+                    A
+                </div>
+            </div>
+        </header>
+
+        <!-- Alerts -->
+        <div class="px-8 pt-6">
+            <div th:if="${success}" class="mb-4 p-4 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-700 flex items-center">
+                <i class="fas fa-check-circle mr-3"></i>
+                <span th:text="${success}"></span>
+            </div>
+            <div th:if="${error}" class="mb-4 p-4 rounded-lg bg-red-50 border border-red-200 text-red-700 flex items-center">
+                <i class="fas fa-exclamation-circle mr-3"></i>
+                <span th:text="${error}"></span>
+            </div>
+        </div>
+
+        <!-- Page Content -->
+        <div class="p-8">
+            <div th:replace="${content}"></div>
+        </div>
+    </main>
+</div>
+
+</body>
+</html>

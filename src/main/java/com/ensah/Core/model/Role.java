@@ -11,7 +11,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 @AllArgsConstructor
-@NoArgsConstructor
+
 @Setter
 @Getter
 
@@ -27,5 +27,9 @@ public class Role {
 
     @ManyToMany(mappedBy = "roles")
     private Set<Utilisateur> utilisateurs = new HashSet<>();
+    public Role() {}
 
+    public Role(String nomRole) {
+        this.nomRole = nomRole;
+    }
 }

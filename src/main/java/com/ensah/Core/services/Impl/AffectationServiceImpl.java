@@ -1,10 +1,13 @@
 package com.ensah.Core.services.Impl;
 
-
-
-import com.ensah.Core.model.*;
-
-import com.ensah.Core.dao.*;
+import com.ensah.Core.model.Annotateur;
+import com.ensah.Core.model.CoupleTexte;
+import com.ensah.Core.model.Dataset;
+import com.ensah.Core.model.Tache;
+import com.ensah.Core.dao.IAnnotateurRepository;
+import com.ensah.Core.dao.ICoupleTexteRepository;
+import com.ensah.Core.dao.IDatasetRepository;
+import com.ensah.Core.dao.ITacheRepository;
 import com.ensah.Core.services.IAffectationService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,6 +36,14 @@ public class AffectationServiceImpl implements IAffectationService {
 
     @Override
     public void affecterAnnotateurs(Long datasetId, List<Long> annotateurIds, LocalDate dateLimite) {
+        // ✅ VALIDATION : minimum 3 annotateurs
+        if (annotateurIds == null || annotateurIds.isEmpty()) {
+            throw new IllegalArgumentException("Vous devez sélectionner au moins 3 annotateurs");
+        }
+        if (annotateurIds.size() < 3) {
+            throw new IllegalArgumentException("Il faut affecter au moins 3 annotateurs (actuellement : " + annotateurIds.size() + ")");
+        }
+
         Dataset ds = datasetRepository.findById(datasetId)
                 .orElseThrow(() -> new RuntimeException("Dataset introuvable"));
 

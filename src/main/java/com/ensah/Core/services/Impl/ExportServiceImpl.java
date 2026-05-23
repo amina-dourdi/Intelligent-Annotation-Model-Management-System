@@ -1,6 +1,6 @@
 package com.ensah.Core.services.Impl;
 
-package com.ensah.annotation.core.services.impl;
+
 
 import com.ensah.Core.model.*;
 
@@ -43,7 +43,7 @@ public class ExportServiceImpl implements IExportService {
         try (PrintWriter pw = new PrintWriter(new OutputStreamWriter(baos, StandardCharsets.UTF_8))) {
             pw.println("id,text1,text2,classe,annotateur,date_annotation");
             for (CoupleTexte ct : couples) {
-                List<<Annotation> anns = annotationRepository.findByCoupleTexteId(ct.getId());
+                List<Annotation> anns = annotationRepository.findByCoupleTexteId(ct.getId());
                 if (anns.isEmpty()) {
                     pw.printf("%d,\"%s\",\"%s\",,,\n",
                             ct.getId(), escape(ct.getText1()), escape(ct.getText2()));

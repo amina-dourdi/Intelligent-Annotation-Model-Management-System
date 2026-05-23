@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Tableau de bord - Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans min-h-screen">
+
+<!-- Navbar -->
+<nav class="bg-slate-900 text-white px-8 py-4 flex justify-between items-center shadow-lg">
+    <div class="flex items-center gap-3">
+        <i class="fas fa-tags text-emerald-400 text-xl"></i>
+        <span class="font-bold text-lg">NLP Annot</span>
+    </div>
+    <div class="flex items-center gap-6">
+        <a th:href="@{/admin/dashboard}" class="text-emerald-400 font-medium">Dashboard</a>
+        <a th:href="@{/admin/datasets}" class="hover:text-emerald-400 transition-colors">Datasets</a>
+        <a th:href="@{/admin/annotateurs}" class="hover:text-emerald-400 transition-colors">Annotateurs</a>
+        <form th:action="@{/logout}" method="post" class="inline">
+            <button type="submit" class="text-red-400 hover:text-red-300 transition-colors">
+                <i class="fas fa-sign-out-alt"></i>
+            </button>
+        </form>
+    </div>
+</nav>
+
+<div class="p-8 max-w-7xl mx-auto">
+    <h2 class="text-2xl font-bold text-slate-700 mb-6">Tableau de bord</h2>
+
+    <!-- KPI Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+            <div class="flex items-center justify-between mb-4">
+                <div class="w-12 h-12 rounded-lg bg-blue-50 flex items-center justify-center">
+                    <i class="fas fa-database text-blue-500 text-xl"></i>
+                </div>
+            </div>
+            <h3 class="text-3xl font-bold text-slate-800" th:text="${totalDatasets}">0</h3>
+            <p class="text-slate-500 text-sm mt-1">Datasets créés</p>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+            <div class="flex items-center justify-between mb-4">
+                <div class="w-12 h-12 rounded-lg bg-amber-50 flex items-center justify-center">
+                    <i class="fas fa-users text-amber-500 text-xl"></i>
+                </div>
+            </div>
+            <h3 class="text-3xl font-bold text-slate-800" th:text="${totalAnnotateurs}">0</h3>
+            <p class="text-slate-500 text-sm mt-1">Annotateurs actifs</p>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+            <div class="flex items-center justify-between mb-4">
+                <div class="w-12 h-12 rounded-lg bg-emerald-50 flex items-center justify-center">
+                    <i class="fas fa-file-alt text-emerald-500 text-xl"></i>
+                </div>
+            </div>
+            <h3 class="text-3xl font-bold text-slate-800" th:text="${totalCouples}">0</h3>
+            <p class="text-slate-500 text-sm mt-1">Couples de texte</p>
+        </div>
+    </div>
+
+    <!-- Datasets Table -->
+    <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+        <div class="px-6 py-4 border-b border-slate-200 flex justify-between items-center">
+            <h3 class="font-semibold text-lg text-slate-700">Datasets récents</h3>
+            <a th:href="@{/admin/datasets/nouveau}"
+               class="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg text-sm font-medium transition-colors">
+                <i class="fas fa-plus mr-2"></i>Nouveau
+            </a>
+        </div>
+        <table class="w-full text-left">
+            <thead class="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider">
+            <tr>
+                <th class="px-6 py-3 font-medium">Nom</th>
+                <th class="px-6 py-3 font-medium">Fichier</th>
+                <th class="px-6 py-3 font-medium">Date</th>
+                <th class="px-6 py-3 font-medium text-right">Actions</th>
+            </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+            <tr th:each="ds : ${datasets}" class="hover:bg-slate-50 transition-colors">
+                <td class="px-6 py-4 font-medium text-slate-700" th:text="${ds.nomDataset}">NLI-AR</td>
+                <td class="px-6 py-4 text-slate-500 text-sm" th:text="${ds.fichierNom}">data.csv</td>
+                <td class="px-6 py-4 text-slate-500 text-sm"
+                    th:text="${#temporals.format(ds.dateCreation, 'dd/MM/yyyy HH:mm')}">--</td>
+                <td class="px-6 py-4 text-right">
+                    <a th:href="@{/admin/datasets/{id}(id=${ds.id})}"
+                       class="text-blue-500 hover:text-blue-700 text-sm font-medium">
+                        Détails
+                    </a>
+                </td>
+            </tr>
+            <tr th:if="${datasets == null or datasets.isEmpty()}">
+                <td colspan="4" class="px-6 py-8 text-center text-slate-400">
+                    Aucun dataset pour l'instant
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+</body>
+</html>

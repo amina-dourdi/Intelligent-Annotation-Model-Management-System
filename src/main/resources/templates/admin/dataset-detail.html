@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Détails du Dataset</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans min-h-screen">
+
+<!-- Navbar -->
+<<nav class="bg-slate-900 text-white px-8 py-4 flex justify-between items-center shadow-lg">
+  <div class="flex items-center gap-3">
+    <i class="fas fa-tags text-emerald-400 text-xl"></i>
+    <span class="font-bold text-lg">NLP Annot</span>
+  </div>
+  <div class="flex items-center gap-6">
+    <a th:href="@{/admin/dashboard}" class="hover:text-emerald-400 transition-colors">Dashboard</a>
+    <a th:href="@{/admin/datasets}" class="text-emerald-400 font-medium">Datasets</a>
+    <a th:href="@{/admin/annotateurs}" class="hover:text-emerald-400 transition-colors">Annotateurs</a>
+    <form th:action="@{/logout}" method="post" class="inline">
+      <button type="submit" class="text-red-400 hover:text-red-300 transition-colors">
+        <i class="fas fa-sign-out-alt"></i>
+      </button>
+    </form>
+  </div>
+</nav>
+
+<div class="p-8 max-w-7xl mx-auto">
+
+  <!-- ✅ MESSAGES FLASH AJOUTÉS -->
+  <div th:if="${error}" class="mb-4 p-4 rounded-lg bg-red-50 border border-red-200 text-red-700 flex items-center">
+    <i class="fas fa-exclamation-circle mr-3"></i>
+    <span th:text="${error}"></span>
+  </div>
+  <div th:if="${success}" class="mb-4 p-4 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-700 flex items-center">
+    <i class="fas fa-check-circle mr-3"></i>
+    <span th:text="${success}"></span>
+  </div>
+
+  <div class="mb-6">
+    <a th:href="@{/admin/datasets}" class="text-slate-400 hover:text-slate-600 text-sm">
+      <i class="fas fa-arrow-left mr-1"></i>Retour
+    </a>
+  </div>
+
+  <!-- Header Info -->
+  <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-6">
+    <div class="flex justify-between items-start">
+      <div>
+        <h2 class="text-2xl font-bold text-slate-800" th:text="${dataset.nomDataset}">NLI-FR</h2>
+        <p class="text-slate-500 mt-1" th:text="${dataset.description}">Description...</p>
+        <div class="flex gap-4 mt-4 text-sm text-slate-500">
+          <span><i class="fas fa-file mr-1"></i><span th:text="${dataset.fichierNom}">data.csv</span></span>
+          <span><i class="fas fa-calendar mr-1"></i><span th:text="${#temporals.format(dataset.dateCreation, 'dd/MM/yyyy')}">--</span></span>
+          <span><i class="fas fa-list mr-1"></i><span th:text="${dataset.couples.size()}">0</span> couples</span>
+        </div>
+      </div>
+      <div class="text-right">
+        <div class="text-3xl font-bold text-emerald-500" th:text="${avancement + '%'}">30%</div>
+        <div class="text-sm text-slate-400">d'avancement</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <!-- Couples -->
+    <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+      <div class="px-6 py-4 border-b border-slate-200">
+        <h3 class="font-semibold text-slate-700">Couples de texte</h3>
+      </div>
+      <div class="max-h-96 overflow-y-auto">
+        <table class="w-full text-left text-sm">
+          <thead class="bg-slate-50 text-slate-500 text-xs uppercase sticky top-0">
+          <tr>
+            <th class="px-4 py-2">ID</th>
+            <th class="px-4 py-2">Texte 1</th>
+            <th class="px-4 py-2">Texte 2</th>
+          </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100">
+          <tr th:each="c : ${dataset.couples}" class="hover:bg-slate-50">
+            <td class="px-4 py-3 text-slate-600" th:text="${c.id}">1</td>
+            <td class="px-4 py-3 text-slate-700" th:text="${c.text1}">...</td>
+            <td class="px-4 py-3 text-slate-700" th:text="${c.text2}">...</td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Affectation -->
+    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+      <h3 class="font-semibold text-slate-700 mb-4">Affecter des annotateurs</h3>
+
+      <form th:action="@{/admin/datasets/{id}/affecter(id=${dataset.id})}" method="post" class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-2">
+            Annotateurs <span class="text-slate-400 font-normal">(minimum 3 requis)</span>
+          </label>
+          <div class="border border-slate-300 rounded-lg max-h-48 overflow-y-auto p-2 space-y-1">
+            <label th:each="a : ${annotateurs}" class="flex items-center px-3 py-2 hover:bg-slate-50 rounded cursor-pointer">
+              <input type="checkbox" name="annotateurIds" th:value="${a.id}"
+                     class="w-4 h-4 text-emerald-500 border-slate-300 rounded focus:ring-emerald-500">
+              <span class="ml-3 text-sm text-slate-700" th:text="${a.nom + ' ' + a.prenom}">Kamali Ali</span>
+            </label>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-2">Date limite</label>
+          <input type="date" name="dateLimite" required
+                 class="w-full px-4 py-2 rounded-lg border border-slate-300 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none">
+        </div>
+
+        <button type="submit"
+                class="w-full px-4 py-2.5 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-medium transition-colors">
+          <i class="fas fa-user-plus mr-2"></i>Affecter
+        </button>
+      </form>
+
+      <!-- Annotateurs déjà affectés -->
+      <div class="mt-6 pt-6 border-t border-slate-200">
+        <h4 class="text-sm font-medium text-slate-600 mb-3">Annotateurs affectés</h4>
+        <div class="flex flex-wrap gap-2">
+                    <span th:each="t : ${dataset.taches}"
+                          class="px-3 py-1 bg-emerald-50 text-emerald-700 rounded-full text-xs font-medium">
+                        <span th:text="${t.annotateur.nom + ' ' + t.annotateur.prenom}">Kamali</span>
+                    </span>
+          <span th:if="${dataset.taches == null or dataset.taches.isEmpty()}" class="text-sm text-slate-400">Aucun</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

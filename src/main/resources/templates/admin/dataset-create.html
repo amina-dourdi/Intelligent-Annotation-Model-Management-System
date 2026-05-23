@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Créer un Dataset</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans min-h-screen">
+
+<!-- Navbar -->
+<nav class="bg-slate-900 text-white px-8 py-4 flex justify-between items-center shadow-lg">
+    <div class="flex items-center gap-3">
+        <i class="fas fa-tags text-emerald-400 text-xl"></i>
+        <span class="font-bold text-lg">NLP Annot</span>
+    </div>
+    <div class="flex items-center gap-6">
+        <a th:href="@{/admin/dashboard}" class="hover:text-emerald-400 transition-colors">Dashboard</a>
+        <a th:href="@{/admin/datasets}" class="text-emerald-400 font-medium">Datasets</a>
+        <a th:href="@{/admin/annotateurs}" class="hover:text-emerald-400 transition-colors">Annotateurs</a>
+        <form th:action="@{/logout}" method="post" class="inline">
+            <button type="submit" class="text-red-400 hover:text-red-300 transition-colors">
+                <i class="fas fa-sign-out-alt"></i>
+            </button>
+        </form>
+    </div>
+</nav>
+
+<div class="p-8 max-w-2xl mx-auto">
+    <div class="mb-6">
+        <a th:href="@{/admin/datasets}" class="text-slate-400 hover:text-slate-600 text-sm">
+            <i class="fas fa-arrow-left mr-1"></i>Retour
+        </a>
+        <h2 class="text-2xl font-bold text-slate-800 mt-2">Créer un Dataset</h2>
+    </div>
+
+    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-8">
+        <form th:action="@{/admin/datasets/nouveau}" method="post" enctype="multipart/form-data" class="space-y-6">
+
+            <div>
+                <label class="block text-sm font-medium text-slate-700 mb-2">Nom du dataset</label>
+                <input type="text" name="nom" required
+                       class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none transition-all"
+                       placeholder="Ex: NLI-AR">
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-slate-700 mb-2">Description</label>
+                <textarea name="description" rows="3"
+                          class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none transition-all"
+                          placeholder="Description optionnelle..."></textarea>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-slate-700 mb-2">Classes possibles <span class="text-slate-400 font-normal">(séparées par ;)</span></label>
+                <input type="text" name="classes" required
+                       class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none transition-all"
+                       placeholder="Ex: N;E;C  ou  similar;not similar">
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-slate-700 mb-2">Fichier (CSV ou JSON)</label>
+                <div class="border-2 border-dashed border-slate-300 rounded-lg p-6 text-center hover:border-emerald-400 transition-colors cursor-pointer relative">
+                    <input type="file" name="fichier" accept=".csv,.json" required
+                           class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
+                    <i class="fas fa-cloud-upload-alt text-3xl text-slate-400 mb-2"></i>
+                    <p class="text-sm text-slate-500">Cliquez ou glissez un fichier ici</p>
+                    <p class="text-xs text-slate-400 mt-1">CSV: text1,text2 | JSON: [{text1, text2}]</p>
+                </div>
+            </div>
+
+            <div class="flex gap-4 pt-4">
+                <a th:href="@{/admin/datasets}"
+                   class="flex-1 px-4 py-2.5 border border-slate-300 text-slate-600 rounded-lg text-center hover:bg-slate-50 transition-colors font-medium">
+                    Annuler
+                </a>
+                <button type="submit"
+                        class="flex-1 px-4 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg font-medium transition-colors shadow-sm">
+                    <i class="fas fa-check mr-2"></i>Créer
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+</body>
+</html>
