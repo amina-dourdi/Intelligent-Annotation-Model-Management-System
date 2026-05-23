@@ -25,7 +25,7 @@ public class Role {
     @Column(unique = true, nullable = false)
     private String nomRole;
 
-    @ManyToMany(mappedBy = "roles")
+    @OneToMany(mappedBy = "role")
     private Set<Utilisateur> utilisateurs = new HashSet<>();
     public Role() {}
 

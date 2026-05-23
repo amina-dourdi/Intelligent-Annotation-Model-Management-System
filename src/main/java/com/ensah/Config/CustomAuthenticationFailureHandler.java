@@ -17,6 +17,6 @@ public class CustomAuthenticationFailureHandler implements AuthenticationFailure
     public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
                                         AuthenticationException exception) throws IOException, ServletException {
         request.getSession().setAttribute("error", "Login ou mot de passe incorrect");
-        response.sendRedirect("/showMyLoginPage?error=true");
+        response.sendRedirect("/login?error=true");
     }
 }

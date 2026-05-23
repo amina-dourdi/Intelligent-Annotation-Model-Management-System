@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mon Profil - Plateforme d'Annotation</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+
+    <!-- Header Navigation -->
+    <header>
+        <div class="container nav-container">
+            <div class="logo">
+                🧠 NLP Annotation
+            </div>
+            <div class="nav-links">
+                <a th:href="@{/annotator}">💻 Dashboard</a>
+                <a th:href="@{/annotator/stats}">📊 Mes Stats</a>
+                <a th:href="@{/annotator/profile}" class="active">👤 Mon Profil</a>
+                
+                <span style="color: var(--text-secondary); margin: 0 10px;">|</span>
+                
+                <span th:text="${annotator.prenom + ' ' + annotator.nom}" style="font-weight: 600;">Utilisateur</span>
+                
+                <form th:action="@{/logout}" method="post" style="display:inline;">
+                    <button type="submit" class="btn-logout">Déconnexion</button>
+                </form>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container">
+        
+        <div class="workspace-header">
+            <div>
+                <h1>Mon Profil</h1>
+                <p>Modifiez vos informations personnelles et votre mot de passe.</p>
+            </div>
+        </div>
+
+        <div class="workspace-panels">
+            <!-- Informations Personnelles -->
+            <div class="card">
+                <h3 style="margin-bottom: 20px;">Informations Personnelles</h3>
+                
+                <div th:if="${successMessage}" class="login-alert alert-success" th:text="${successMessage}"></div>
+                <div th:if="${errorMessage}" class="login-alert alert-error" th:text="${errorMessage}"></div>
+
+                <form th:action="@{/annotator/profile/update}" method="post">
+                    <div class="form-group">
+                        <label class="form-label" for="nom">Nom</label>
+                        <input type="text" id="nom" name="nom" class="form-control" th:value="${annotator.nom}" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="prenom">Prénom</label>
+                        <input type="text" id="prenom" name="prenom" class="form-control" th:value="${annotator.prenom}" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="login">Identifiant (Login)</label>
+                        <input type="text" id="login" name="login" class="form-control" th:value="${annotator.login}" required>
+                    </div>
+                    
+                    <button type="submit" class="btn" style="width: 100%;">Mettre à jour le profil</button>
+                </form>
+            </div>
+
+            <!-- Mot de Passe -->
+            <div class="card">
+                <h3 style="margin-bottom: 20px;">Sécurité</h3>
+
+                <div th:if="${successPassword}" class="login-alert alert-success" th:text="${successPassword}"></div>
+                <div th:if="${errorPassword}" class="login-alert alert-error" th:text="${errorPassword}"></div>
+
+                <form th:action="@{/annotator/profile/password}" method="post">
+                    <div class="form-group">
+                        <label class="form-label" for="currentPassword">Mot de passe actuel</label>
+                        <div style="position: relative;">
+                            <input type="password" id="currentPassword" name="currentPassword" class="form-control" style="padding-right: 40px;" required>
+                            <i class="fas fa-eye" id="toggleCurrent" style="position: absolute; right: 14px; top: 14px; color: var(--text-secondary); cursor: pointer;" onclick="toggleVisibility('currentPassword', 'toggleCurrent')"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="newPassword">Nouveau mot de passe</label>
+                        <div style="position: relative;">
+                            <input type="password" id="newPassword" name="newPassword" class="form-control" style="padding-right: 40px;" required>
+                            <i class="fas fa-eye" id="toggleNew" style="position: absolute; right: 14px; top: 14px; color: var(--text-secondary); cursor: pointer;" onclick="toggleVisibility('newPassword', 'toggleNew')"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="confirmPassword">Confirmer le nouveau mot de passe</label>
+                        <div style="position: relative;">
+                            <input type="password" id="confirmPassword" name="confirmPassword" class="form-control" style="padding-right: 40px;" required>
+                            <i class="fas fa-eye" id="toggleConfirm" style="position: absolute; right: 14px; top: 14px; color: var(--text-secondary); cursor: pointer;" onclick="toggleVisibility('confirmPassword', 'toggleConfirm')"></i>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn" style="width: 100%; background: linear-gradient(135deg, var(--accent-cyan), var(--accent-indigo));">Changer le mot de passe</button>
+                </form>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            &copy; 2026 - Plateforme d'Annotation NLP Collaborative. Développé par <strong>Amina & Youssra</strong>.
+        </div>
+    </footer>
+
+    <script>
+        function toggleVisibility(inputId, iconId) {
+            var input = document.getElementById(inputId);
+            var icon = document.getElementById(iconId);
+            if (input.type === "password") {
+                input.type = "text";
+                icon.classList.remove("fa-eye");
+                icon.classList.add("fa-eye-slash");
+            } else {
+                input.type = "password";
+                icon.classList.remove("fa-eye-slash");
+                icon.classList.add("fa-eye");
+            }
+        }
+    </script>
+</body>
+</html>

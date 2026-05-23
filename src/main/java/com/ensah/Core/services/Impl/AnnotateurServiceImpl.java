@@ -56,7 +56,7 @@ public class AnnotateurServiceImpl implements IAnnotateurService {
 
         Role roleAnnot = roleRepository.findByNomRole("ANNOTATOR_ROLE")
                 .orElseThrow(() -> new RuntimeException("Rôle ANNOTATOR_ROLE introuvable"));
-        a.getRoles().add(roleAnnot);
+        a.setRole(roleAnnot);
 
         annotateurRepository.save(a);
         return a;
@@ -95,5 +95,19 @@ public class AnnotateurServiceImpl implements IAnnotateurService {
             sb.append(chars.charAt(random.nextInt(chars.length())));
         }
         return sb.toString();
+    }
+
+    @Override
+    public boolean changerMotDePasse(Long id, String ancienMdp, String nouveauMdp) {
+        Annotateur a = annotateurRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Annotateur introuvable"));
+        
+        if (!passwordEncoder.matches(ancienMdp, a.getPassword())) {
+            return false;
+        }
+        
+        a.setPassword(passwordEncoder.encode(nouveauMdp));
+        annotateurRepository.save(a);
+        return true;
     }
 }

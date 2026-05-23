@@ -17,4 +17,6 @@ public interface IAnnotateurService {
     Annotateur getAnnotateurById(Long id);
 
     String genererMotDePasse(Annotateur annotateur);
+
+    boolean changerMotDePasse(Long id, String ancienMdp, String nouveauMdp);
 }

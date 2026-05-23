@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tableau de Bord - Annotateur</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+    <header>
+        <div class="container nav-container">
+            <div class="logo">
+                <span>🧠</span> NLP Annotation
+            </div>
+            <div class="nav-links">
+                <a th:href="@{/annotator}" class="active">💻 Dashboard</a>
+                <a th:href="@{/annotator/stats}">📊 Mes Stats</a>
+                <a th:href="@{/annotator/profile}">👤 Mon Profil</a>
+                <span style="color: var(--text-secondary); margin: 0 10px;">|</span>
+                <span style="font-size: 14px; font-weight: 500; color: var(--text-primary);" 
+                      th:text="${annotator.prenom + ' ' + annotator.nom}">Amina</span>
+                <form th:action="@{/logout}" method="POST" style="display: inline;">
+                    <button type="submit" class="btn-logout" style="border: none; font-family: inherit;">Déconnexion</button>
+                </form>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <!-- Dashboard Welcome and Summary -->
+        <div style="margin-bottom: 40px;">
+            <h1 style="font-size: 32px; background: linear-gradient(135deg, var(--accent-indigo), var(--accent-purple)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                Ravi de vous revoir, <span th:text="${annotator.prenom}">Amina</span> !
+            </h1>
+            <p>Voici l'état d'avancement de vos tâches d'annotation assignées.</p>
+        </div>
+
+        <!-- Stat Cards Grid -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">📂</div>
+                <div class="stat-info">
+                    <div class="stat-value" th:text="${totalTasks}">0</div>
+                    <div class="stat-label">Tâches assignées</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="color: var(--success);">✅</div>
+                <div class="stat-info">
+                    <div class="stat-value" th:text="${completedTasks}">0</div>
+                    <div class="stat-label">Tâches complétées</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="color: var(--warning);">⏳</div>
+                <div class="stat-info">
+                    <div class="stat-value" th:text="${pendingTasks}">0</div>
+                    <div class="stat-label">En attente</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="color: var(--accent-cyan);">📊</div>
+                <div class="stat-info">
+                    <div class="stat-value" th:text="${totalAnnotated + ' / ' + totalAssigned}">0</div>
+                    <div class="stat-label">Textes Annotés</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Global Progression Card -->
+        <div class="card" style="margin-bottom: 40px; padding: 24px;">
+            <div class="progress-bar-container">
+                <div class="progress-bar-label">
+                    <span style="font-weight: 600; color: var(--text-primary);">Progression Globale de votre travail</span>
+                    <span style="font-weight: 700; color: var(--accent-purple);" th:text="${globalProgress + '%'}">0%</span>
+                </div>
+                <div class="progress-bar-bg">
+                    <div class="progress-bar-fill" th:style="'width: ' + ${globalProgress} + '%'"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab Filters -->
+        <div class="tab-filter">
+            <a th:href="@{/annotator(filter='all')}" 
+               th:classappend="${activeFilter == 'all' ? 'active' : ''}" class="tab-link">🔍 Toutes les tâches</a>
+            <a th:href="@{/annotator(filter='todo')}" 
+               th:classappend="${activeFilter == 'todo' ? 'active' : ''}" class="tab-link">⏳ À faire</a>
+            <a th:href="@{/annotator(filter='done')}" 
+               th:classappend="${activeFilter == 'done' ? 'active' : ''}" class="tab-link">✅ Terminées</a>
+        </div>
+
+        <!-- Tasks Listing Card -->
+        <div class="card" style="padding: 0;">
+            <div th:if="${#lists.isEmpty(tasks)}" style="padding: 40px; text-align: center; color: var(--text-secondary);">
+                <span style="font-size: 48px; display: block; margin-bottom: 10px;">📭</span>
+                Aucune tâche d'annotation ne correspond au filtre actuel.
+            </div>
+            
+            <div th:if="${!#lists.isEmpty(tasks)}" class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID Tâche</th>
+                            <th>Dataset</th>
+                            <th>Date Limite</th>
+                            <th>Progression</th>
+                            <th>Statut</th>
+                            <th style="text-align: right;">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="wrap : ${tasks}">
+                            <td style="font-weight: 600; color: var(--accent-cyan);" th:text="'#' + ${wrap.tache.id}">#1</td>
+                            <td>
+                                <div style="font-weight: 600; color: var(--text-primary);" th:text="${wrap.tache.dataset.nomDataset}">Dataset</div>
+                                <div style="font-size: 13px; color: var(--text-secondary); margin-top: 4px;" th:text="${wrap.tache.dataset.fichierNom}">file.csv</div>
+                            </td>
+                            <td style="font-weight: 500;" th:text="${wrap.tache.dateLimite != null ? wrap.tache.dateLimite.toString() : 'Non définie'}">Date</td>
+                            <td style="width: 30%;">
+                                <div class="progress-bar-container">
+                                    <div class="progress-bar-label">
+                                        <span th:text="${wrap.annotatedCount + '/' + wrap.totalCount + ' couples'}">0/0</span>
+                                        <span th:text="${wrap.percent + '%'}">0%</span>
+                                    </div>
+                                    <div class="progress-bar-bg">
+                                        <div class="progress-bar-fill" th:style="'width: ' + ${wrap.percent} + '%'"></div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="badge" 
+                                      th:classappend="${wrap.status == 'Terminé' ? 'badge-done' : 'badge-todo'}"
+                                      th:text="${wrap.status}">Statut</span>
+                            </td>
+                            <td style="text-align: right;">
+                                <a th:href="@{/annotator/task/{id}(id=${wrap.tache.id})}" class="btn" style="padding: 8px 16px; font-size: 14px;">
+                                    🚀 Annoter
+                                </a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            &copy; 2026 - Plateforme d'Annotation NLP Collaborative. Développé par <strong>Amina & Youssra</strong>.
+        </div>
+    </footer>
+
+</body>
+</html>

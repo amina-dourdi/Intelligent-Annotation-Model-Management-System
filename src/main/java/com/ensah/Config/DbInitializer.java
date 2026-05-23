@@ -8,7 +8,7 @@ import com.Utils.PasswordGen;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
-@Component
+// @Component  // Désactivé : DataInitializer gère déjà l'initialisation complète (rôles + admin + données de test)
 public class DbInitializer implements CommandLineRunner {
 
     private final IRoleRepository roleRepository;
@@ -39,7 +39,7 @@ public class DbInitializer implements CommandLineRunner {
             admin.setActif(true);
 
             Role adminRole = roleRepository.findByNomRole("ADMIN_ROLE").get();
-            admin.getRoles().add(adminRole);
+            admin.setRole(adminRole);
 
             utilisateurRepository.save(admin);
             System.out.println(" Admin créé : login=admin, password=admin");

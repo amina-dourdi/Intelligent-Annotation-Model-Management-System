@@ -42,8 +42,8 @@ public class CsvHelperImpl implements ICsvHelper {
                 String[] parts = line.split(",", -1);
                 if (parts.length >= 2) {
                     CoupleTexte ct = new CoupleTexte();
-                    ct.setText1(parts[0].trim());
-                    ct.setText2(parts[1].trim());
+                    ct.setTexte1(parts[0].trim());
+                    ct.setTexte2(parts[1].trim());
                     result.add(ct);
                 }
             }
@@ -57,8 +57,8 @@ public class CsvHelperImpl implements ICsvHelper {
         if (root.isArray()) {
             for (JsonNode node : root) {
                 CoupleTexte ct = new CoupleTexte();
-                ct.setText1(node.has("text1") ? node.get("text1").asText() : "");
-                ct.setText2(node.has("text2") ? node.get("text2").asText() : "");
+                ct.setTexte1(node.has("texte1") ? node.get("texte1").asText() : (node.has("text1") ? node.get("text1").asText() : ""));
+                ct.setTexte2(node.has("texte2") ? node.get("texte2").asText() : (node.has("text2") ? node.get("text2").asText() : ""));
                 result.add(ct);
             }
         }

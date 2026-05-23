@@ -35,11 +35,13 @@ public class Tache {
             inverseJoinColumns = @JoinColumn(name = "couple_texte_id")
     )
     private List<CoupleTexte> couples = new ArrayList<>();
+
     public void ajouterCouple(CoupleTexte couple) {
-        this.couples.add(couple);
+        if (this.couples == null) {
+            this.couples = new ArrayList<>();
+        }
+        if (!this.couples.contains(couple)) {
+            this.couples.add(couple);
+        }
     }
-
-
-
-
 }

@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 
-@Component
+// @Component  // Désactivé : CustomAuthenticationSuccessHandler est utilisé par AppSecurityConfig
 public class RedirectionAfterAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
 
     @Override

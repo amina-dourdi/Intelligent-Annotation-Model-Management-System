@@ -18,10 +18,10 @@ public class CoupleTexte {
     private Long id;
 
     @Column(nullable = false, length = 2000)
-    private String text1;
+    private String texte1;
 
     @Column(nullable = false, length = 2000)
-    private String text2;
+    private String texte2;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "dataset_id", nullable = false)
