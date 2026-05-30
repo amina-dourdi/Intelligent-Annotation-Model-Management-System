@@ -80,14 +80,14 @@
                 <div class="workspace-panel">
                     <span class="panel-label">Texte 1</span>
                     <div class="panel-content">
-                        <p style="color: white; font-size: 17px;" th:text="${couple.texte1}">Texte 1 à analyser</p>
+                        <p style="font-size: 17px; color: var(--text-primary);" th:text="${couple.texte1}">Texte 1 à analyser</p>
                     </div>
                 </div>
                 
                 <div class="workspace-panel">
                     <span class="panel-label">Texte 2</span>
                     <div class="panel-content">
-                        <p style="color: white; font-size: 17px;" th:text="${couple.texte2}">Texte 2 à analyser</p>
+                        <p style="font-size: 17px; color: var(--text-primary);" th:text="${couple.texte2}">Texte 2 à analyser</p>
                     </div>
                 </div>
             </div>
@@ -128,8 +128,8 @@
                     </div>
                     
                     <div style="font-size: 15px; font-weight: 500; color: var(--text-secondary);">
-                        Texte <span th:text="${currentPage + 1}" style="color: white; font-weight: 700;">1</span> 
-                        sur <span th:text="${totalPages}" style="color: white; font-weight: 700;">10</span>
+                        Texte <span th:text="${currentPage + 1}" style="color: var(--text-primary); font-weight: 700;">1</span> 
+                        sur <span th:text="${totalPages}" style="color: var(--text-primary); font-weight: 700;">10</span>
                     </div>
 
                     <div style="display: flex; gap: 10px;">
