@@ -1,18 +1,18 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
 
 :root {
-    --bg-primary: #f1f5f9;
+    --bg-primary: #f8fafc;
     --bg-secondary: #ffffff;
-    --bg-tertiary: #e2e8f0;
+    --bg-tertiary: #f1f5f9;
     --text-primary: #0f172a;
     --text-secondary: #475569;
-    --accent-purple: #7c3aed;
-    --accent-indigo: #4f46e5;
-    --accent-cyan: #0891b2;
-    --border-color: rgba(0, 0, 0, 0.08);
-    --border-glow: rgba(124, 58, 237, 0.15);
-    --border-glow-hover: rgba(124, 58, 237, 0.3);
-    
+    --accent-slate: #334155;
+    --accent-blue: #3b82f6;
+    --accent-sky: #0ea5e9;
+    --border-color: rgba(0, 0, 0, 0.06);
+    --border-glow: rgba(51, 65, 85, 0.08);
+    --border-glow-hover: rgba(51, 65, 85, 0.15);
+
     --success: #10b981;
     --warning: #f59e0b;
     --danger: #ef4444;
@@ -27,9 +27,9 @@
 body {
     font-family: 'Outfit', sans-serif;
     background-color: var(--bg-primary);
-    background-image: 
-        radial-gradient(at 0% 0%, rgba(79, 70, 229, 0.08) 0px, transparent 50%),
-        radial-gradient(at 100% 100%, rgba(124, 58, 237, 0.08) 0px, transparent 50%);
+    background-image:
+            radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.06) 0px, transparent 50%),
+            radial-gradient(at 100% 100%, rgba(99, 102, 241, 0.06) 0px, transparent 50%);
     color: var(--text-primary);
     min-height: 100vh;
     display: flex;
@@ -46,9 +46,9 @@ body {
 }
 
 header {
-    background-color: rgba(255, 255, 255, 0.85);
+    background-color: rgba(255, 255, 255, 0.80);
     backdrop-filter: blur(12px);
-    border-bottom: 1px solid var(--border-color);
+    border-bottom: 1px solid rgba(0,0,0,0.06);
     padding: 15px 0;
     position: sticky;
     top: 0;
@@ -64,7 +64,7 @@ header .nav-container {
 .logo {
     font-size: 24px;
     font-weight: 800;
-    background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+    background: linear-gradient(135deg, var(--accent-sky), var(--accent-slate));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     display: flex;
@@ -87,8 +87,8 @@ header .nav-container {
 }
 
 .nav-links a:hover, .nav-links a.active {
-    color: var(--accent-indigo);
-    text-shadow: 0 0 10px rgba(124, 58, 237, 0.2);
+    color: var(--accent-slate);
+    text-shadow: 0 0 10px rgba(51, 65, 85, 0.1);
 }
 
 .btn-logout {
@@ -132,7 +132,7 @@ p {
     border: 1px solid var(--border-color);
     border-radius: 16px;
     padding: 30px;
-    box-shadow: 0 10px 30px -15px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
     overflow: hidden;
@@ -140,7 +140,7 @@ p {
 
 .card:hover {
     border-color: var(--border-glow-hover);
-    box-shadow: 0 15px 35px -10px rgba(124, 58, 237, 0.15);
+    box-shadow: 0 10px 25px -10px rgba(51, 65, 85, 0.08);
     transform: translateY(-2px);
 }
 
@@ -167,7 +167,7 @@ p {
 
 .stat-card:hover {
     border-color: var(--border-glow-hover);
-    box-shadow: 0 10px 25px -10px rgba(79, 70, 229, 0.15);
+    box-shadow: 0 10px 25px -10px rgba(59, 130, 246, 0.08);
     transform: translateY(-2px);
 }
 
@@ -175,13 +175,13 @@ p {
     width: 54px;
     height: 54px;
     border-radius: 12px;
-    background: linear-gradient(135deg, rgba(79, 70, 229, 0.1), rgba(124, 58, 237, 0.1));
-    border: 1px solid var(--border-glow);
+    background: linear-gradient(135deg, rgba(14, 165, 233, 0.12), rgba(99, 102, 241, 0.12));
+    border: 1px solid rgba(14, 165, 233, 0.15);
     display: flex;
     justify-content: center;
     align-items: center;
     font-size: 24px;
-    color: var(--accent-purple);
+    color: var(--accent-slate);
 }
 
 .stat-info .stat-value {
@@ -214,13 +214,13 @@ table {
 
 th {
     padding: 16px 20px;
-    color: var(--text-secondary);
+    color: #ffffff;
     font-weight: 600;
     font-size: 14px;
     border-bottom: 1px solid var(--border-color);
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    background-color: var(--bg-primary);
+    background-color: #1e293b;
 }
 
 td {
@@ -262,10 +262,10 @@ tr:hover td {
 
 .progress-bar-fill {
     height: 100%;
-    background: linear-gradient(90deg, var(--accent-indigo), var(--accent-purple));
+    background: linear-gradient(90deg, #3b82f6, #6366f1);
     border-radius: 999px;
     transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 0 0 10px rgba(124, 58, 237, 0.4);
+    box-shadow: 0 0 8px rgba(59, 130, 246, 0.3);
 }
 
 /* Badges / Status Labels */
@@ -294,7 +294,7 @@ tr:hover td {
 
 /* Buttons and Action Links */
 .btn {
-    background: linear-gradient(135deg, var(--accent-indigo), var(--accent-purple));
+    background: #1e293b;
     color: white;
     border: none;
     padding: 10px 20px;
@@ -309,13 +309,13 @@ tr:hover td {
     gap: 8px;
     text-decoration: none;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 0 4px 12px rgba(124, 58, 237, 0.25);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
 }
 
 .btn:hover {
+    background: #0f172a;
     transform: translateY(-1px);
-    box-shadow: 0 6px 20px rgba(124, 58, 237, 0.4);
-    filter: brightness(1.1);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .btn-secondary {
@@ -369,9 +369,9 @@ tr:hover td {
 }
 
 .tab-link.active {
-    color: var(--accent-indigo);
-    background: rgba(124, 58, 237, 0.1);
-    border: 1px solid var(--border-glow);
+    color: var(--accent-slate);
+    background: rgba(51, 65, 85, 0.08);
+    border: 1px solid rgba(51, 65, 85, 0.12);
     font-weight: 600;
 }
 
@@ -390,7 +390,7 @@ tr:hover td {
     border: 1px solid var(--border-color);
     border-radius: 20px;
     padding: 40px;
-    box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
 }
 
 .login-title {
@@ -398,7 +398,7 @@ tr:hover td {
     text-align: center;
     font-weight: 800;
     margin-bottom: 8px;
-    background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+    background: linear-gradient(135deg, var(--accent-sky), var(--accent-slate));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
 }
@@ -437,8 +437,8 @@ tr:hover td {
 
 .form-control:focus {
     outline: none;
-    border-color: var(--accent-purple);
-    box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+    border-color: #334155;
+    box-shadow: 0 0 0 3px rgba(51, 65, 85, 0.1);
 }
 
 .login-alert {
@@ -490,14 +490,14 @@ tr:hover td {
 }
 
 .workspace-panel:hover {
-    border-color: rgba(124, 58, 237, 0.3);
+    border-color: rgba(51, 65, 85, 0.15);
 }
 
 .panel-label {
     position: absolute;
     top: -12px;
     left: 20px;
-    background: linear-gradient(135deg, var(--accent-indigo), var(--accent-purple));
+    background: linear-gradient(135deg, #3b82f6, #334155);
     color: white;
     padding: 4px 14px;
     border-radius: 999px;
@@ -505,7 +505,7 @@ tr:hover td {
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    box-shadow: 0 2px 8px rgba(124, 58, 237, 0.3);
+    box-shadow: 0 2px 8px rgba(51, 65, 85, 0.15);
 }
 
 .panel-content {
@@ -573,10 +573,10 @@ tr:hover td {
 }
 
 .voting-option input[type="radio"]:checked + .voting-label {
-    background: rgba(124, 58, 237, 0.1);
-    border-color: var(--accent-purple);
-    color: var(--accent-indigo);
-    box-shadow: 0 0 15px rgba(124, 58, 237, 0.15);
+    background: rgba(51, 65, 85, 0.06);
+    border-color: #334155;
+    color: #334155;
+    box-shadow: 0 0 12px rgba(51, 65, 85, 0.08);
     transform: scale(1.03);
 }
 
@@ -618,13 +618,13 @@ tr:hover td {
     height: 160px;
     border-radius: 50%;
     background: conic-gradient(
-        var(--accent-purple) 0% 30%, 
-        var(--accent-indigo) 30% 70%, 
-        var(--accent-cyan) 70% 100%
+            #3b82f6 0% 30%,
+            #6366f1 30% 70%,
+            #0ea5e9 70% 100%
     );
     margin: 20px auto;
     position: relative;
-    box-shadow: 0 0 20px rgba(124, 58, 237, 0.15);
+    box-shadow: 0 0 15px rgba(59, 130, 246, 0.1);
 }
 
 .pie-chart-inner {
@@ -689,7 +689,7 @@ tr:hover td {
 
 .admin-shell-icon {
     font-size: 72px;
-    background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+    background: linear-gradient(135deg, var(--accent-sky), var(--accent-slate));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     margin-bottom: 25px;
@@ -699,7 +699,7 @@ tr:hover td {
 footer {
     border-top: 1px solid var(--border-color);
     padding: 20px 0;
-    background-color: rgba(255, 255, 255, 0.5);
+    background-color: rgba(255, 255, 255, 0.6);
     text-align: center;
     font-size: 14px;
     color: var(--text-secondary);

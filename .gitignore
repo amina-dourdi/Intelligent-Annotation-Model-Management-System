@@ -58,3 +58,5 @@ build/
 hs_err_pid*
 replay_pid*
 >>>>>>> 3e174f29c6fc38847bd5d672288c15eaef669d7c
+# Ignorer tous les fichiers .properties
+*.properties

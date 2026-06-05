@@ -5,17 +5,18 @@
     <title>Accès refusé</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <base target="_blank">
 </head>
-<body class="bg-slate-100 min-h-screen flex items-center justify-center">
+<body class="bg-gradient-to-br from-blue-50 via-white to-indigo-50 min-h-screen flex items-center justify-center">
 
-<div class="bg-white rounded-2xl shadow-xl p-8 text-center max-w-md">
+<div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-8 text-center max-w-md">
     <div class="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
         <i class="fas fa-lock text-red-500 text-3xl"></i>
     </div>
     <h1 class="text-2xl font-bold text-slate-800 mb-2">Accès refusé</h1>
     <p class="text-slate-500 mb-6">Vous n'avez pas les permissions nécessaires pour accéder à cette page.</p>
     <div class="space-y-3">
-        <a th:href="@{/showMyLoginPage}" class="block w-full px-6 py-3 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg font-medium transition-colors">
+        <a th:href="@{/showMyLoginPage}" class="block w-full px-6 py-3 bg-slate-800 hover:bg-slate-900 text-white rounded-lg font-medium transition-colors">
             <i class="fas fa-sign-in-alt mr-2"></i>Retour à la connexion
         </a>
         <form th:action="@{/logout}" method="post">

@@ -266,7 +266,7 @@ public class AnnotateurController {
                                 org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
         Annotateur annotateur = getCurrentAnnotateur();
         try {
-            annotateurService.modifierAnnotateur(annotateur.getId(), nom, prenom, login);
+            annotateurService.modifierAnnotateur(annotateur.getId(), nom, prenom, login, annotateur.getEmail());
             redirectAttributes.addFlashAttribute("successMessage", "Profil mis à jour avec succès.");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMessage", "Erreur lors de la mise à jour : " + e.getMessage());

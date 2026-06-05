@@ -3,122 +3,122 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mon Profil - Plateforme d'Annotation</title>
-    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <title>Mon Profil - NLP Annot</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 </head>
-<body>
+<body class="bg-gradient-to-br from-blue-50 via-white to-indigo-50 text-slate-800 font-sans min-h-screen">
 
-    <!-- Header Navigation -->
-    <header>
-        <div class="container nav-container">
-            <div class="logo">
-                🧠 NLP Annotation
+    <nav class="bg-white/80 backdrop-blur border-b border-slate-100 px-8 py-4 flex justify-between items-center sticky top-0 z-10">
+        <div class="flex items-center gap-3">
+            <img src="/images/logo.png" alt="NLP Annot" class="h-8 w-auto">
+            <span class="font-bold text-lg text-slate-900">NLP Annot</span>
+        </div>
+        <div class="flex items-center gap-6 text-sm">
+            <a th:href="@{/annotator}" class="text-slate-500 hover:text-slate-900 transition">Dashboard</a>
+            <a th:href="@{/annotator/stats}" class="text-slate-500 hover:text-slate-900 transition">Mes Stats</a>
+            <a th:href="@{/annotator/profile}" class="text-slate-900 font-medium">Mon Profil</a>
+            <span class="text-slate-300">|</span>
+            <span class="text-slate-600 font-medium" th:text="${annotator.prenom + ' ' + annotator.nom}">Amina</span>
+            <form th:action="@{/logout}" method="post" class="inline">
+                <button type="submit" class="text-slate-400 hover:text-red-500 transition">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
+            </form>
+        </div>
+    </nav>
+
+    <main class="p-8 max-w-4xl mx-auto">
+        <div class="mb-8">
+            <h1 class="text-2xl font-bold text-slate-900">Mon Profil</h1>
+            <p class="text-slate-500 text-sm mt-1">Mettez a jour vos informations personnelles et votre mot de passe</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Informations -->
+            <div class="bg-white rounded-xl shadow-sm border border-slate-100 p-8">
+                <h3 class="font-semibold text-slate-700 mb-6">Informations personnelles</h3>
+
+                <div th:if="${successMessage}" class="mb-4 p-3 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-700 text-sm flex items-center">
+                    <i class="fas fa-check-circle mr-2"></i><span th:text="${successMessage}"></span>
+                </div>
+                <div th:if="${errorMessage}" class="mb-4 p-3 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm flex items-center">
+                    <i class="fas fa-exclamation-circle mr-2"></i><span th:text="${errorMessage}"></span>
+                </div>
+
+                <form th:action="@{/annotator/profile/update}" method="post" class="space-y-5">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-2">Nom</label>
+                        <input type="text" name="nom" th:value="${annotator.nom}" required
+                               class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:border-slate-500 focus:ring-2 focus:ring-slate-200 outline-none transition-all">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-2">Prenom</label>
+                        <input type="text" name="prenom" th:value="${annotator.prenom}" required
+                               class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:border-slate-500 focus:ring-2 focus:ring-slate-200 outline-none transition-all">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-2">Login</label>
+                        <input type="text" name="login" th:value="${annotator.login}" required
+                               class="w-full px-4 py-2.5 rounded-lg border border-slate-300 bg-slate-50 text-slate-500 cursor-not-allowed" disabled>
+                    </div>
+                    <button type="submit" class="w-full px-4 py-2.5 bg-slate-800 hover:bg-slate-900 text-white rounded-lg font-medium transition-colors">
+                        <i class="fas fa-save mr-2"></i>Mettre a jour
+                    </button>
+                </form>
             </div>
-            <div class="nav-links">
-                <a th:href="@{/annotator}">💻 Dashboard</a>
-                <a th:href="@{/annotator/stats}">📊 Mes Stats</a>
-                <a th:href="@{/annotator/profile}" class="active">👤 Mon Profil</a>
-                
-                <span style="color: var(--text-secondary); margin: 0 10px;">|</span>
-                
-                <span th:text="${annotator.prenom + ' ' + annotator.nom}" style="font-weight: 600;">Utilisateur</span>
-                
-                <form th:action="@{/logout}" method="post" style="display:inline;">
-                    <button type="submit" class="btn-logout">Déconnexion</button>
+
+            <!-- Mot de passe -->
+            <div class="bg-white rounded-xl shadow-sm border border-slate-100 p-8">
+                <h3 class="font-semibold text-slate-700 mb-6">Securite</h3>
+
+                <div th:if="${successPassword}" class="mb-4 p-3 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-700 text-sm flex items-center">
+                    <i class="fas fa-check-circle mr-2"></i><span th:text="${successPassword}"></span>
+                </div>
+                <div th:if="${errorPassword}" class="mb-4 p-3 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm flex items-center">
+                    <i class="fas fa-exclamation-circle mr-2"></i><span th:text="${errorPassword}"></span>
+                </div>
+
+                <form th:action="@{/annotator/profile/password}" method="post" class="space-y-5">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-2">Mot de passe actuel</label>
+                        <div class="relative">
+                            <input type="password" id="currentPassword" name="currentPassword" required
+                                   class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:border-slate-500 focus:ring-2 focus:ring-slate-200 outline-none transition-all pr-10">
+                            <i class="fas fa-eye absolute right-3 top-3 text-slate-400 cursor-pointer" onclick="toggleVisibility('currentPassword', this)"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-2">Nouveau mot de passe</label>
+                        <div class="relative">
+                            <input type="password" id="newPassword" name="newPassword" required
+                                   class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:border-slate-500 focus:ring-2 focus:ring-slate-200 outline-none transition-all pr-10">
+                            <i class="fas fa-eye absolute right-3 top-3 text-slate-400 cursor-pointer" onclick="toggleVisibility('newPassword', this)"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-2">Confirmer le mot de passe</label>
+                        <div class="relative">
+                            <input type="password" id="confirmPassword" name="confirmPassword" required
+                                   class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:border-slate-500 focus:ring-2 focus:ring-slate-200 outline-none transition-all pr-10">
+                            <i class="fas fa-eye absolute right-3 top-3 text-slate-400 cursor-pointer" onclick="toggleVisibility('confirmPassword', this)"></i>
+                        </div>
+                    </div>
+                    <button type="submit" class="w-full px-4 py-2.5 bg-slate-800 hover:bg-slate-900 text-white rounded-lg font-medium transition-colors">
+                        <i class="fas fa-key mr-2"></i>Changer le mot de passe
+                    </button>
                 </form>
             </div>
         </div>
-    </header>
-
-    <!-- Main Content -->
-    <main class="container">
-        
-        <div class="workspace-header">
-            <div>
-                <h1>Mon Profil</h1>
-                <p>Modifiez vos informations personnelles et votre mot de passe.</p>
-            </div>
-        </div>
-
-        <div class="workspace-panels">
-            <!-- Informations Personnelles -->
-            <div class="card">
-                <h3 style="margin-bottom: 20px;">Informations Personnelles</h3>
-                
-                <div th:if="${successMessage}" class="login-alert alert-success" th:text="${successMessage}"></div>
-                <div th:if="${errorMessage}" class="login-alert alert-error" th:text="${errorMessage}"></div>
-
-                <form th:action="@{/annotator/profile/update}" method="post">
-                    <div class="form-group">
-                        <label class="form-label" for="nom">Nom</label>
-                        <input type="text" id="nom" name="nom" class="form-control" th:value="${annotator.nom}" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label class="form-label" for="prenom">Prénom</label>
-                        <input type="text" id="prenom" name="prenom" class="form-control" th:value="${annotator.prenom}" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label class="form-label" for="login">Identifiant (Login)</label>
-                        <input type="text" id="login" name="login" class="form-control" th:value="${annotator.login}" required>
-                    </div>
-                    
-                    <button type="submit" class="btn" style="width: 100%;">Mettre à jour le profil</button>
-                </form>
-            </div>
-
-            <!-- Mot de Passe -->
-            <div class="card">
-                <h3 style="margin-bottom: 20px;">Sécurité</h3>
-
-                <div th:if="${successPassword}" class="login-alert alert-success" th:text="${successPassword}"></div>
-                <div th:if="${errorPassword}" class="login-alert alert-error" th:text="${errorPassword}"></div>
-
-                <form th:action="@{/annotator/profile/password}" method="post">
-                    <div class="form-group">
-                        <label class="form-label" for="currentPassword">Mot de passe actuel</label>
-                        <div style="position: relative;">
-                            <input type="password" id="currentPassword" name="currentPassword" class="form-control" style="padding-right: 40px;" required>
-                            <i class="fas fa-eye" id="toggleCurrent" style="position: absolute; right: 14px; top: 14px; color: var(--text-secondary); cursor: pointer;" onclick="toggleVisibility('currentPassword', 'toggleCurrent')"></i>
-                        </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label class="form-label" for="newPassword">Nouveau mot de passe</label>
-                        <div style="position: relative;">
-                            <input type="password" id="newPassword" name="newPassword" class="form-control" style="padding-right: 40px;" required>
-                            <i class="fas fa-eye" id="toggleNew" style="position: absolute; right: 14px; top: 14px; color: var(--text-secondary); cursor: pointer;" onclick="toggleVisibility('newPassword', 'toggleNew')"></i>
-                        </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label class="form-label" for="confirmPassword">Confirmer le nouveau mot de passe</label>
-                        <div style="position: relative;">
-                            <input type="password" id="confirmPassword" name="confirmPassword" class="form-control" style="padding-right: 40px;" required>
-                            <i class="fas fa-eye" id="toggleConfirm" style="position: absolute; right: 14px; top: 14px; color: var(--text-secondary); cursor: pointer;" onclick="toggleVisibility('confirmPassword', 'toggleConfirm')"></i>
-                        </div>
-                    </div>
-                    
-                    <button type="submit" class="btn" style="width: 100%; background: linear-gradient(135deg, var(--accent-cyan), var(--accent-indigo));">Changer le mot de passe</button>
-                </form>
-            </div>
-        </div>
-
     </main>
 
-    <!-- Footer -->
-    <footer>
-        <div class="container">
-            &copy; 2026 - Plateforme d'Annotation NLP Collaborative. Développé par <strong>Amina & Youssra</strong>.
-        </div>
+    <footer class="border-t border-slate-100 py-6 text-center text-sm text-slate-400 mt-auto">
+        &copy; 2026 - NLP Annot. Developpe par Amina & Youssra.
     </footer>
 
     <script>
-        function toggleVisibility(inputId, iconId) {
+        function toggleVisibility(inputId, icon) {
             var input = document.getElementById(inputId);
-            var icon = document.getElementById(iconId);
             if (input.type === "password") {
                 input.type = "text";
                 icon.classList.remove("fa-eye");

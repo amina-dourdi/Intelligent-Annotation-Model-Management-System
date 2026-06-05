@@ -17,7 +17,7 @@ public interface ICoupleTexteRepository extends JpaRepository<CoupleTexte, Long>
     List<CoupleTexte> findByDatasetId(Long datasetId);
 
     long countByDatasetId(Long datasetId);
-
+    Page<CoupleTexte> findByDatasetId(Long datasetId, Pageable pageable);
     @Query("SELECT ct FROM CoupleTexte ct JOIN ct.taches t WHERE t.id = :tacheId ORDER BY ct.id ASC")
     Page<CoupleTexte> findCouplesByTacheId(@Param("tacheId") Long tacheId, Pageable pageable);
 }

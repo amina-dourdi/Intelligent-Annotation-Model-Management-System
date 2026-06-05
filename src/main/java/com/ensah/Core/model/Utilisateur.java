@@ -1,9 +1,11 @@
 package com.ensah.Core.model;
 
-
 import jakarta.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
+
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
 @AllArgsConstructor
@@ -27,13 +29,23 @@ public class Utilisateur {
     @Column(nullable = false)
     private String prenom;
 
+    @NotBlank
     @Column(unique = true, nullable = false)
     private String login;
+
+    @Email
+    @Column(unique = true)
+    private String email;
 
     @Column(nullable = false)
     private String password;
 
     private boolean actif = true;
+
+    private boolean passwordChanged = false;
+
+    @Column(unique = true)
+    private String firstLoginToken;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "role_id")

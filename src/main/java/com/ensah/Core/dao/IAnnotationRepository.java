@@ -18,7 +18,9 @@ public interface IAnnotationRepository extends JpaRepository<Annotation, Long> {
 
     Optional<Annotation> findByCoupleTexteIdAndAnnotateurId(Long coupleTexteId, Long annotateurId);
 
-    long countByCoupleTexteDatasetId(Long datasetId);
+    @Query("SELECT COUNT(a) FROM Annotation a WHERE a.coupleTexte.dataset.id = :datasetId")
+    long countByCoupleTexteDatasetId(@Param("datasetId") Long datasetId);
+
 
     @Query("SELECT a.classeChoisie, COUNT(a) FROM Annotation a WHERE a.annotateur.id = :annotateurId GROUP BY a.classeChoisie")
     List<Object[]> countAnnotationsByClassForAnnotateur(@Param("annotateurId") Long annotateurId);

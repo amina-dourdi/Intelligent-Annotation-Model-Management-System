@@ -6,20 +6,20 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 </head>
-<body class="bg-slate-50 text-slate-800 font-sans min-h-screen">
+<body class="bg-gradient-to-br from-blue-50 via-white to-indigo-50 text-slate-800 font-sans min-h-screen">
 
 <!-- Navbar -->
-<nav class="bg-slate-900 text-white px-8 py-4 flex justify-between items-center shadow-lg">
+<nav class="bg-white/80 backdrop-blur border-b border-slate-100 px-8 py-4 flex justify-between items-center sticky top-0 z-10">
     <div class="flex items-center gap-3">
-        <i class="fas fa-tags text-emerald-400 text-xl"></i>
-        <span class="font-bold text-lg">NLP Annot</span>
+        <i class="fas fa-tags text-slate-700 text-xl"></i>
+        <span class="font-bold text-lg text-slate-900">NLP Annot</span>
     </div>
     <div class="flex items-center gap-6">
-        <a th:href="@{/admin/dashboard}" class="hover:text-emerald-400 transition-colors">Dashboard</a>
-        <a th:href="@{/admin/datasets}" class="hover:text-emerald-400 transition-colors">Datasets</a>
-        <a th:href="@{/admin/annotateurs}" class="text-emerald-400 font-medium">Annotateurs</a>
+        <a th:href="@{/admin/dashboard}" class="text-slate-500 hover:text-slate-900 transition">Dashboard</a>
+        <a th:href="@{/admin/datasets}" class="text-slate-500 hover:text-slate-900 transition">Datasets</a>
+        <a th:href="@{/admin/annotateurs}" class="text-slate-900 font-medium">Annotateurs</a>
         <form th:action="@{/logout}" method="post" class="inline">
-            <button type="submit" class="text-red-400 hover:text-red-300 transition-colors">
+            <button type="submit" class="text-slate-400 hover:text-red-500 transition">
                 <i class="fas fa-sign-out-alt"></i>
             </button>
         </form>
@@ -30,14 +30,14 @@
     <div class="flex justify-between items-center mb-6">
         <h2 class="text-xl font-semibold text-slate-700">Gestion des Annotateurs</h2>
         <a th:href="@{/admin/annotateurs/nouveau}"
-           class="px-5 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg font-medium transition-all shadow-sm hover:shadow">
+           class="px-5 py-2.5 bg-slate-800 hover:bg-slate-900 text-white rounded-lg font-medium transition-all shadow-sm hover:shadow">
             <i class="fas fa-plus mr-2"></i>Nouvel annotateur
         </a>
     </div>
 
-    <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+    <div class="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
         <table class="w-full text-left">
-            <thead class="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider">
+            <thead class="bg-slate-800 text-white text-xs uppercase tracking-wider">
             <tr>
                 <th class="px-6 py-4 font-medium">Nom</th>
                 <th class="px-6 py-4 font-medium">Prénom</th>
@@ -52,18 +52,22 @@
                 <td class="px-6 py-4 text-slate-600" th:text="${a.prenom}">Ali</td>
                 <td class="px-6 py-4 text-slate-500 text-sm font-mono" th:text="${a.login}">k.ali</td>
                 <td class="px-6 py-4">
-                            <span class="px-2 py-1 bg-blue-50 text-blue-600 rounded text-xs font-medium"
-                                  th:text="${a.taches != null ? a.taches.size() : 0} + ' tâche(s)'">0</span>
+                    <span class="px-2 py-1 bg-blue-50 text-blue-600 rounded text-xs font-medium"
+                          th:text="${a.taches != null ? a.taches.size() : 0} + ' tâche(s)'">0</span>
                 </td>
                 <td class="px-6 py-4 text-right space-x-2">
-                    <button onclick="alert('Modification à implémenter')"
-                            class="inline-flex items-center px-3 py-1.5 bg-amber-50 text-amber-600 rounded-md text-sm hover:bg-amber-100 transition-colors">
+                    <a th:href="@{/admin/annotateurs/{id}/progression(id=${a.id})}"
+                       class="inline-flex items-center px-3 py-1.5 bg-blue-50 text-blue-600 rounded-md text-sm hover:bg-blue-100 transition-colors">
+                        <i class="fas fa-chart-line mr-1.5"></i>Progrès
+                    </a>
+                    <a th:href="@{/admin/annotateurs/{id}/modifier(id=${a.id})}"
+                       class="inline-flex items-center px-3 py-1.5 bg-amber-50 text-amber-600 rounded-md text-sm hover:bg-amber-100 transition-colors">
                         <i class="fas fa-edit mr-1.5"></i>Modifier
-                    </button>
+                    </a>
                     <form th:action="@{/admin/annotateurs/{id}/supprimer(id=${a.id})}" method="post" class="inline">
                         <button type="submit"
                                 class="inline-flex items-center px-3 py-1.5 bg-red-50 text-red-600 rounded-md text-sm hover:bg-red-100 transition-colors"
-                                onclick="return confirm('Supprimer cet annotateur ? (logique)')">
+                                onclick="return confirm('Supprimer cet annotateur ?')">
                             <i class="fas fa-trash mr-1.5"></i>Supprimer
                         </button>
                     </form>

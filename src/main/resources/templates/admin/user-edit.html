@@ -2,16 +2,17 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Nouvel Annotateur</title>
+    <title>Modifier Annotateur</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 </head>
 <body class="bg-gradient-to-br from-blue-50 via-white to-indigo-50 text-slate-800 font-sans min-h-screen">
 
+<!-- Navbar -->
 <nav class="bg-white/80 backdrop-blur border-b border-slate-100 px-8 py-4 flex justify-between items-center sticky top-0 z-10">
     <div class="flex items-center gap-3">
         <i class="fas fa-tags text-slate-700 text-xl"></i>
-        <span class="font-bold text-lg text-slate-900">Annota</span>
+        <span class="font-bold text-lg text-slate-900">NLP Annot</span>
     </div>
     <div class="flex items-center gap-6">
         <a th:href="@{/admin/dashboard}" class="text-slate-500 hover:text-slate-900 transition">Dashboard</a>
@@ -30,37 +31,36 @@
         <a th:href="@{/admin/annotateurs}" class="text-slate-500 hover:text-slate-900 text-sm transition">
             <i class="fas fa-arrow-left mr-1"></i>Retour
         </a>
-        <h2 class="text-2xl font-bold text-slate-800 mt-2">Nouvel Annotateur</h2>
-        <p class="text-slate-500 text-sm mt-1">
-            Le mot de passe sera généré automatiquement et envoyé par email.
-        </p>
+        <h2 class="text-2xl font-bold text-slate-800 mt-2">Modifier Annotateur</h2>
+        <p class="text-slate-500 text-sm mt-1">Met à jour les informations de l'annotateur.</p>
     </div>
 
     <div class="bg-white rounded-xl shadow-sm border border-slate-100 p-8">
-        <form th:action="@{/admin/annotateurs/nouveau}" method="post" class="space-y-5">
+        <form th:action="@{/admin/annotateurs/{id}/modifier(id=${annotateur.id})}" method="post" class="space-y-5">
 
             <div>
                 <label class="block text-sm font-medium text-slate-700 mb-2">Nom</label>
-                <input type="text" name="nom" required
+                <input type="text" name="nom" th:value="${annotateur.nom}" required
                        class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:border-slate-500 focus:ring-2 focus:ring-slate-200 outline-none transition-all">
             </div>
 
             <div>
                 <label class="block text-sm font-medium text-slate-700 mb-2">Prénom</label>
-                <input type="text" name="prenom" required
+                <input type="text" name="prenom" th:value="${annotateur.prenom}" required
                        class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:border-slate-500 focus:ring-2 focus:ring-slate-200 outline-none transition-all">
             </div>
 
             <div>
                 <label class="block text-sm font-medium text-slate-700 mb-2">Login</label>
-                <input type="text" name="login" required
+                <input type="text" name="login" th:value="${annotateur.login}" required
                        class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:border-slate-500 focus:ring-2 focus:ring-slate-200 outline-none transition-all"
-                       placeholder="ex: prenom.nom">
+                       placeholder="Ex: k.ali">
             </div>
 
+            <!-- ✅ CHAMP EMAIL AJOUTÉ -->
             <div>
                 <label class="block text-sm font-medium text-slate-700 mb-2">Email</label>
-                <input type="email" name="email" required
+                <input type="email" name="email" th:value="${annotateur.email}" required
                        class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:border-slate-500 focus:ring-2 focus:ring-slate-200 outline-none transition-all"
                        placeholder="ex: prenom.nom@gmail.com">
             </div>
@@ -72,7 +72,7 @@
                 </a>
                 <button type="submit"
                         class="flex-1 px-4 py-2.5 bg-slate-800 hover:bg-slate-900 text-white rounded-lg font-medium transition-colors shadow-sm">
-                    <i class="fas fa-check mr-2"></i>Valider
+                    <i class="fas fa-save mr-2"></i>Modifier
                 </button>
             </div>
         </form>

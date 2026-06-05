@@ -41,7 +41,6 @@ public class DataInitializer implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        // 1. Initialiser les Rôles
         Role adminRole = roleRepository.findByNomRole("ADMIN_ROLE").orElse(null);
         if (adminRole == null) {
             adminRole = new Role();
@@ -56,54 +55,38 @@ public class DataInitializer implements CommandLineRunner {
             roleRepository.save(annotatorRole);
         }
 
-        // 2. Initialiser l'Administrateur par défaut
         if (!utilisateurRepository.existsByLogin("admin")) {
             Administrateur admin = new Administrateur();
-            admin.setNom("System");
-            admin.setPrenom("Admin");
+            admin.setNom("Admin");
+            admin.setPrenom("System");
             admin.setLogin("admin");
+            admin.setEmail("admin@annota.com");
             admin.setPassword(passwordEncoder.encode("admin"));
             admin.setActif(true);
+            admin.setPasswordChanged(true);
             admin.setRole(adminRole);
             utilisateurRepository.save(admin);
         }
 
-        // 3. Initialiser les Annotateurs de test
-        Annotateur amina = null;
-        if (!utilisateurRepository.existsByLogin("amina")) {
-            amina = new Annotateur();
-            amina.setNom("AMINA");
-            amina.setPrenom("Annotateur 1");
-            amina.setLogin("amina");
-            amina.setPassword(passwordEncoder.encode("amina"));
-            amina.setActif(true);
-            amina.setRole(annotatorRole);
-            annotateurRepository.save(amina);
+        Annotateur user1 = null;
+        if (!utilisateurRepository.existsByLogin("user1")) {
+            user1 = new Annotateur();
+            user1.setNom("USER1");
+            user1.setPrenom("Annotateur Test");
+            user1.setLogin("user1");
+            user1.setEmail("user1@annota.com");
+            user1.setPassword(passwordEncoder.encode("user1"));
+            user1.setActif(true);
+            user1.setPasswordChanged(true);
+            user1.setRole(annotatorRole);
+            annotateurRepository.save(user1);
         } else {
             Optional<Annotateur> opt = annotateurRepository.findById(
-                    utilisateurRepository.findByLogin("amina").get().getId()
+                    utilisateurRepository.findByLogin("user1").get().getId()
             );
-            if (opt.isPresent()) amina = opt.get();
+            if (opt.isPresent()) user1 = opt.get();
         }
 
-        Annotateur youssra = null;
-        if (!utilisateurRepository.existsByLogin("youssra")) {
-            youssra = new Annotateur();
-            youssra.setNom("YOUSSRA");
-            youssra.setPrenom("Annotateur 2");
-            youssra.setLogin("youssra");
-            youssra.setPassword(passwordEncoder.encode("youssra"));
-            youssra.setActif(true);
-            youssra.setRole(annotatorRole);
-            annotateurRepository.save(youssra);
-        } else {
-            Optional<Annotateur> opt = annotateurRepository.findById(
-                    utilisateurRepository.findByLogin("youssra").get().getId()
-            );
-            if (opt.isPresent()) youssra = opt.get();
-        }
-
-        // 4. Initialiser un jeu de données NLP factice pour tester immédiatement
         if (datasetRepository.count() == 0) {
             Dataset ds = new Dataset();
             ds.setNomDataset("Similarité Textuelle NLI");
@@ -111,7 +94,6 @@ public class DataInitializer implements CommandLineRunner {
             ds.setFichierNom("nli_test_dataset.csv");
             datasetRepository.save(ds);
 
-            // Classes possibles
             List<String> classes = Arrays.asList("entails", "neutral", "contradiction");
             List<ClassePossible> cps = new ArrayList<>();
             for (String c : classes) {
@@ -123,9 +105,8 @@ public class DataInitializer implements CommandLineRunner {
             }
             ds.setClassesPossibles(cps);
 
-            // Couples de textes
             List<CoupleTexte> couples = new ArrayList<>();
-            
+
             CoupleTexte ct1 = new CoupleTexte();
             ct1.setTexte1("Un homme joue au football sous la pluie battante.");
             ct1.setTexte2("Un homme fait du sport en plein air.");
@@ -164,23 +145,13 @@ public class DataInitializer implements CommandLineRunner {
             ds.setCouples(couples);
             datasetRepository.save(ds);
 
-            // Affectation des tâches
-            if (amina != null) {
-                Tache tAmina = new Tache();
-                tAmina.setDataset(ds);
-                tAmina.setAnnotateur(amina);
-                tAmina.setDateLimite(LocalDate.now().plusDays(10));
-                tAmina.setCouples(new ArrayList<>(couples));
-                tacheRepository.save(tAmina);
-            }
-
-            if (youssra != null) {
-                Tache tYoussra = new Tache();
-                tYoussra.setDataset(ds);
-                tYoussra.setAnnotateur(youssra);
-                tYoussra.setDateLimite(LocalDate.now().plusDays(7));
-                tYoussra.setCouples(new ArrayList<>(couples));
-                tacheRepository.save(tYoussra);
+            if (user1 != null) {
+                Tache tUser1 = new Tache();
+                tUser1.setDataset(ds);
+                tUser1.setAnnotateur(user1);
+                tUser1.setDateLimite(LocalDate.now().plusDays(10));
+                tUser1.setCouples(new ArrayList<>(couples));
+                tacheRepository.save(tUser1);
             }
         }
     }
