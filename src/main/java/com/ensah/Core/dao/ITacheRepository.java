@@ -12,7 +12,7 @@ import java.util.Optional;
 public interface ITacheRepository extends JpaRepository<Tache, Long> {
 
     Optional<Tache> findByDatasetIdAndAnnotateurId(Long datasetId, Long annotateurId);
-
+    List<Tache> findAllByDatasetIdAndAnnotateurId(Long datasetId, Long annotateurId);
     List<Tache> findByAnnotateurId(Long annotateurId);
 
     List<Tache> findByDatasetId(Long datasetId);

@@ -12,4 +12,6 @@ public interface IAffectationService {
     List<Tache> listerTachesParAnnotateur(Long annotateurId);
 
     List<Tache> listerTachesParDataset(Long datasetId);
+
+    void reequilibrerApresDesaffectation(Long datasetId, Long annotateurRetireId);
 }

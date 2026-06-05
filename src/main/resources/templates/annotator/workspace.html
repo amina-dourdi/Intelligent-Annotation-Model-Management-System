@@ -3,162 +3,152 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Espace d'Annotation - NLP</title>
-    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <title>Espace d'Annotation - NLP Annot</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 </head>
-<body>
+<body class="bg-gradient-to-br from-blue-50 via-white to-indigo-50 text-slate-800 font-sans min-h-screen">
 
-    <header>
-        <div class="container nav-container">
-            <div class="logo">
-                <span>🧠</span> NLP Annotation
+<nav class="bg-white/80 backdrop-blur border-b border-slate-100 px-8 py-4 flex justify-between items-center sticky top-0 z-10">
+    <div class="flex items-center gap-3">
+        <img src="/images/logo.png" alt="NLP Annot" class="h-8 w-auto">
+        <span class="font-bold text-lg text-slate-900">NLP Annot</span>
+    </div>
+    <div class="flex items-center gap-6 text-sm">
+        <a th:href="@{/annotator}" class="text-slate-500 hover:text-slate-900 transition">Dashboard</a>
+        <a th:href="@{/annotator/stats}" class="text-slate-500 hover:text-slate-900 transition">Mes Stats</a>
+        <a th:href="@{/annotator/profile}" class="text-slate-500 hover:text-slate-900 transition">Mon Profil</a>
+        <span class="text-slate-300">|</span>
+        <span class="text-slate-600 font-medium" th:text="${task.annotateur.prenom + ' ' + task.annotateur.nom}">Amina</span>
+        <form th:action="@{/logout}" method="POST" class="inline">
+            <button type="submit" class="text-slate-400 hover:text-red-500 transition">
+                <i class="fas fa-sign-out-alt"></i>
+            </button>
+        </form>
+    </div>
+</nav>
+
+<main class="p-8 max-w-6xl mx-auto">
+    <!-- Back -->
+    <div class="mb-6">
+        <a th:href="@{/annotator}" class="text-slate-500 hover:text-slate-900 text-sm transition">
+            <i class="fas fa-arrow-left mr-1"></i>Retour au tableau de bord
+        </a>
+    </div>
+
+    <!-- Task Header -->
+    <div class="bg-white rounded-xl shadow-sm border border-slate-100 p-6 mb-6">
+        <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
+            <div>
+                <span class="px-2 py-1 bg-slate-100 text-slate-600 rounded text-xs font-semibold mb-2 inline-block" th:text="${task.dataset.nomDataset}">Dataset</span>
+                <h1 class="text-xl font-bold text-slate-900" th:text="'Tache #' + ${task.id}">Tache #1</h1>
+                <p class="text-sm text-slate-500 mt-1" th:text="${task.dataset.description}">Description</p>
             </div>
-            <div class="nav-links">
-                <a th:href="@{/annotator}">💻 Dashboard</a>
-                <a th:href="@{/annotator/stats}">📊 Mes Stats</a>
-                <a th:href="@{/annotator/profile}">👤 Mon Profil</a>
-                <span style="color: var(--text-secondary); margin: 0 10px;">|</span>
-                <span style="font-size: 14px; font-weight: 500; color: var(--text-primary);" 
-                      th:text="${task.annotateur.prenom + ' ' + task.annotateur.nom}">Amina</span>
-                <form th:action="@{/logout}" method="POST" style="display: inline;">
-                    <button type="submit" class="btn-logout" style="border: none; font-family: inherit;">Déconnexion</button>
-                </form>
+            <div class="min-w-[250px]">
+                <div class="flex justify-between text-sm mb-1">
+                    <span class="font-medium text-slate-600">Progression</span>
+                    <span class="font-bold text-slate-800" th:text="${progressPercent} + '%'">0%</span>
+                </div>
+                <div class="w-full h-2.5 bg-slate-200 rounded-full overflow-hidden">
+                    <div class="h-full bg-blue-500 rounded-full" th:style="'width:' + ${progressPercent} + '%'"></div>
+                </div>
+                <div class="text-xs text-slate-400 mt-1" th:text="${annotatedCount + ' sur ' + totalCount + ' couples annotes'}">0 sur 5</div>
             </div>
         </div>
-    </header>
+    </div>
 
-    <main class="container">
-        <!-- Back Link and Context -->
-        <div style="margin-bottom: 25px;">
-            <a th:href="@{/annotator}" class="tab-link" style="padding-left: 0; display: inline-flex; align-items: center; gap: 8px;">
-                ⬅️ Retour au tableau de bord
-            </a>
+    <!-- Success Message -->
+    <div th:if="${saved}" class="bg-emerald-50 border border-emerald-200 rounded-xl p-8 text-center mb-6">
+        <i class="fas fa-check-circle text-emerald-500 text-4xl mb-3"></i>
+        <h2 class="text-xl font-bold text-slate-800 mb-2">Felicitations !</h2>
+        <p class="text-slate-600 text-sm max-w-md mx-auto mb-4">
+            Vous avez termine d'annoter toutes les paires de textes assignees pour cette tache.
+        </p>
+        <a th:href="@{/annotator}" class="inline-flex items-center px-5 py-2.5 bg-slate-800 hover:bg-slate-900 text-white rounded-lg text-sm font-medium transition-colors">
+            Retour au tableau de bord
+        </a>
+    </div>
+
+    <!-- Annotation Area -->
+    <div th:if="${couple != null}">
+        <!-- Text Panels -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <div class="bg-white rounded-xl shadow-sm border border-slate-100 p-6 relative">
+                <span class="absolute -top-3 left-4 px-3 py-1 bg-slate-800 text-white text-xs font-semibold rounded-full">Texte 1</span>
+                <p class="text-slate-700 leading-relaxed mt-2" th:text="${couple.texte1}">Texte 1</p>
+            </div>
+            <div class="bg-white rounded-xl shadow-sm border border-slate-100 p-6 relative">
+                <span class="absolute -top-3 left-4 px-3 py-1 bg-slate-800 text-white text-xs font-semibold rounded-full">Texte 2</span>
+                <p class="text-slate-700 leading-relaxed mt-2" th:text="${couple.texte2}">Texte 2</p>
+            </div>
         </div>
 
-        <!-- Task & Progress Header -->
-        <div class="card" style="margin-bottom: 30px; padding: 25px;">
-            <div class="workspace-header">
+        <!-- Annotation Form -->
+        <form th:action="@{/annotator/task/{id}/annotate(id=${task.id})}" method="POST">
+            <input type="hidden" name="coupleTexteId" th:value="${couple.id}">
+            <input type="hidden" name="page" th:value="${currentPage}">
+
+            <div class="bg-white rounded-xl shadow-sm border border-slate-100 p-8 mb-6">
+                <h3 class="text-sm font-semibold text-slate-700 mb-4 uppercase tracking-wider text-center">Selectionnez la classe d'annotation</h3>
+
+                <div class="flex justify-center gap-4 flex-wrap">
+                    <div th:each="cls : ${classes}" class="relative">
+                        <input type="radio" th:id="${'class_' + cls.id}" name="classeChoisie" th:value="${cls.texteClasse}"
+                               th:checked="${existingAnnotation != null && existingAnnotation.classeChoisie == cls.texteClasse}"
+                               required class="peer sr-only">
+                        <label th:for="${'class_' + cls.id}" th:text="${cls.texteClasse}"
+                               class="block px-6 py-3 bg-slate-50 border-2 border-slate-200 rounded-xl text-sm font-semibold text-slate-600 cursor-pointer transition-all hover:border-slate-300 peer-checked:bg-blue-50 peer-checked:border-blue-500 peer-checked:text-blue-700 peer-checked:shadow-sm">
+                            Classe
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navigation -->
+            <div class="flex justify-between items-center">
                 <div>
-                    <span class="badge badge-todo" style="margin-bottom: 10px;" th:text="${task.dataset.nomDataset}">NLI Dataset</span>
-                    <h1 style="margin: 0; font-size: 26px;" th:text="${'Tâche #' + task.id}">Tâche #1</h1>
-                    <p style="margin-top: 5px;" th:text="${task.dataset.description}">Description</p>
+                    <a th:if="${currentPage > 0}" th:href="@{/annotator/task/{id}(id=${task.id}, page=${currentPage - 1})}"
+                       class="inline-flex items-center px-4 py-2 border border-slate-300 text-slate-600 rounded-lg text-sm hover:bg-slate-50 transition-colors">
+                        <i class="fas fa-chevron-left mr-2"></i>Precedent
+                    </a>
+                    <button th:if="${currentPage == 0}" type="button" disabled
+                            class="inline-flex items-center px-4 py-2 border border-slate-200 text-slate-400 rounded-lg text-sm cursor-not-allowed">
+                        <i class="fas fa-chevron-left mr-2"></i>Precedent
+                    </button>
                 </div>
-                <div style="text-align: right; min-width: 250px;">
-                    <div class="progress-bar-container">
-                        <div class="progress-bar-label">
-                            <span style="font-weight: 600;">Progression de la tâche</span>
-                            <span style="font-weight: 700; color: var(--accent-purple);" th:text="${progressPercent + '%'}">0%</span>
-                        </div>
-                        <div class="progress-bar-bg">
-                            <div class="progress-bar-fill" th:style="'width: ' + ${progressPercent} + '%'"></div>
-                        </div>
-                        <div style="font-size: 12px; color: var(--text-secondary); margin-top: 6px;" 
-                             th:text="${annotatedCount + ' sur ' + totalCount + ' couples annotés'}">
-                            0 sur 5 annotés
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
 
-        <!-- Alert indicating success -->
-        <div th:if="${saved}" class="card finished-card" style="margin-bottom: 30px;">
-            <div class="finished-icon">🎉</div>
-            <h2 style="color: white; font-size: 24px;">Félicitations !</h2>
-            <p style="max-width: 500px; margin: 10px auto 25px auto;">
-                Vous avez terminé d'annoter toutes les paires de textes assignées pour cette tâche. Vous pouvez continuer à réviser vos annotations ou revenir au tableau de bord.
-            </p>
-            <a th:href="@{/annotator}" class="btn">
-                Retourner au Tableau de Bord
-            </a>
-        </div>
-
-        <!-- Working Annotation Area -->
-        <div th:if="${couple != null}">
-            <!-- The Two Text Panels -->
-            <div class="workspace-panels">
-                <div class="workspace-panel">
-                    <span class="panel-label">Texte 1</span>
-                    <div class="panel-content">
-                        <p style="color: white; font-size: 17px;" th:text="${couple.texte1}">Texte 1 à analyser</p>
-                    </div>
+                <div class="text-sm text-slate-500">
+                    Texte <span class="font-bold text-slate-800" th:text="${currentPage + 1}">1</span>
+                    sur <span class="font-bold text-slate-800" th:text="${totalPages}">10</span>
                 </div>
-                
-                <div class="workspace-panel">
-                    <span class="panel-label">Texte 2</span>
-                    <div class="panel-content">
-                        <p style="color: white; font-size: 17px;" th:text="${couple.texte2}">Texte 2 à analyser</p>
-                    </div>
+
+                <div class="flex gap-3">
+                    <a th:if="${currentPage + 1 < totalPages}" th:href="@{/annotator/task/{id}(id=${task.id}, page=${currentPage + 1})}"
+                       class="inline-flex items-center px-4 py-2 border border-slate-300 text-slate-600 rounded-lg text-sm hover:bg-slate-50 transition-colors">
+                        Passer<i class="fas fa-chevron-right ml-2"></i>
+                    </a>
+                    <button type="submit" class="inline-flex items-center px-5 py-2 bg-slate-800 hover:bg-slate-900 text-white rounded-lg text-sm font-medium transition-colors">
+                        <i class="fas fa-save mr-2"></i>Enregistrer
+                    </button>
                 </div>
             </div>
+        </form>
+    </div>
 
-            <!-- Annotation Form -->
-            <form th:action="@{/annotator/task/{id}/annotate(id=${task.id})}" method="POST">
-                <input type="hidden" name="coupleTexteId" th:value="${couple.id}">
-                <input type="hidden" name="page" th:value="${currentPage}">
+    <!-- No content -->
+    <div th:if="${couple == null && !saved}" class="bg-white rounded-xl shadow-sm border border-slate-100 p-12 text-center">
+        <i class="fas fa-inbox text-4xl text-slate-300 mb-3"></i>
+        <h2 class="text-lg font-semibold text-slate-700 mb-1">Aucun texte disponible</h2>
+        <p class="text-slate-500 text-sm mb-4">Cette tache ne contient actuellement aucune paire de textes a annoter.</p>
+        <a th:href="@{/annotator}" class="inline-flex items-center px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white rounded-lg text-sm font-medium transition-colors">
+            Retour au tableau de bord
+        </a>
+    </div>
+</main>
 
-                <!-- Class Choice Voting Container -->
-                <div class="voting-container">
-                    <div class="voting-title">Sélectionnez la catégorie (classe d'annotation)</div>
-                    
-                    <div class="voting-options">
-                        <div class="voting-option" th:each="cls : ${classes}">
-                            <input type="radio" 
-                                   th:id="${'class_' + cls.id}" 
-                                   name="classeChoisie" 
-                                   th:value="${cls.texteClasse}" 
-                                   th:checked="${existingAnnotation != null && existingAnnotation.classeChoisie == cls.texteClasse}"
-                                   required>
-                            <label th:for="${'class_' + cls.id}" class="voting-label" th:text="${cls.texteClasse}">classe</label>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Navigation Controls -->
-                <div class="workspace-controls">
-                    <div>
-                        <a th:if="${currentPage > 0}" 
-                           th:href="@{/annotator/task/{id}(id=${task.id}, page=${currentPage - 1})}" 
-                           class="btn btn-secondary">
-                            ⬅️ Précédent
-                        </a>
-                        <button th:if="${currentPage == 0}" type="button" class="btn btn-secondary" style="opacity: 0.5; cursor: not-allowed;" disabled>
-                            ⬅️ Précédent
-                        </button>
-                    </div>
-                    
-                    <div style="font-size: 15px; font-weight: 500; color: var(--text-secondary);">
-                        Texte <span th:text="${currentPage + 1}" style="color: white; font-weight: 700;">1</span> 
-                        sur <span th:text="${totalPages}" style="color: white; font-weight: 700;">10</span>
-                    </div>
-
-                    <div style="display: flex; gap: 10px;">
-                        <a th:if="${currentPage + 1 < totalPages}"
-                           th:href="@{/annotator/task/{id}(id=${task.id}, page=${currentPage + 1})}" 
-                           class="btn btn-secondary">
-                            Passer ➡️
-                        </a>
-                        <button type="submit" class="btn">
-                            💾 Enregistrer &amp; Suivant
-                        </button>
-                    </div>
-                </div>
-            </form>
-        </div>
-
-        <div th:if="${couple == null && !saved}" class="card finished-card">
-            <span style="font-size: 48px; display: block; margin-bottom: 10px;">📭</span>
-            <h2>Aucun texte disponible</h2>
-            <p style="margin: 10px 0 20px 0;">Cette tâche ne contient actuellement aucune paire de textes à annoter.</p>
-            <a th:href="@{/annotator}" class="btn">Retour au Tableau de bord</a>
-        </div>
-    </main>
-
-    <footer>
-        <div class="container">
-            &copy; 2026 - Plateforme d'Annotation NLP Collaborative. Développé par <strong>Amina & Youssra</strong>.
-        </div>
-    </footer>
+<footer class="border-t border-slate-100 py-6 text-center text-sm text-slate-400 mt-auto">
+    &copy; 2026 - NLP Annot. Developpe par Amina & Youssra.
+</footer>
 
 </body>
 </html>

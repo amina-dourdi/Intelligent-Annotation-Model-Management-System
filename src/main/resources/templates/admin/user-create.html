@@ -6,20 +6,19 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 </head>
-<body class="bg-slate-50 text-slate-800 font-sans min-h-screen">
+<body class="bg-gradient-to-br from-blue-50 via-white to-indigo-50 text-slate-800 font-sans min-h-screen">
 
-<!-- Navbar -->
-<nav class="bg-slate-900 text-white px-8 py-4 flex justify-between items-center shadow-lg">
+<nav class="bg-white/80 backdrop-blur border-b border-slate-100 px-8 py-4 flex justify-between items-center sticky top-0 z-10">
     <div class="flex items-center gap-3">
-        <i class="fas fa-tags text-emerald-400 text-xl"></i>
-        <span class="font-bold text-lg">NLP Annot</span>
+        <i class="fas fa-tags text-slate-700 text-xl"></i>
+        <span class="font-bold text-lg text-slate-900">Annota</span>
     </div>
     <div class="flex items-center gap-6">
-        <a th:href="@{/admin/dashboard}" class="hover:text-emerald-400 transition-colors">Dashboard</a>
-        <a th:href="@{/admin/datasets}" class="hover:text-emerald-400 transition-colors">Datasets</a>
-        <a th:href="@{/admin/annotateurs}" class="text-emerald-400 font-medium">Annotateurs</a>
+        <a th:href="@{/admin/dashboard}" class="text-slate-500 hover:text-slate-900 transition">Dashboard</a>
+        <a th:href="@{/admin/datasets}" class="text-slate-500 hover:text-slate-900 transition">Datasets</a>
+        <a th:href="@{/admin/annotateurs}" class="text-slate-900 font-medium">Annotateurs</a>
         <form th:action="@{/logout}" method="post" class="inline">
-            <button type="submit" class="text-red-400 hover:text-red-300 transition-colors">
+            <button type="submit" class="text-slate-400 hover:text-red-500 transition">
                 <i class="fas fa-sign-out-alt"></i>
             </button>
         </form>
@@ -28,33 +27,42 @@
 
 <div class="p-8 max-w-md mx-auto">
     <div class="mb-6">
-        <a th:href="@{/admin/annotateurs}" class="text-slate-400 hover:text-slate-600 text-sm">
+        <a th:href="@{/admin/annotateurs}" class="text-slate-500 hover:text-slate-900 text-sm transition">
             <i class="fas fa-arrow-left mr-1"></i>Retour
         </a>
         <h2 class="text-2xl font-bold text-slate-800 mt-2">Nouvel Annotateur</h2>
-        <p class="text-slate-500 text-sm mt-1">Le mot de passe sera généré automatiquement.</p>
+        <p class="text-slate-500 text-sm mt-1">
+            Le mot de passe sera généré automatiquement et envoyé par email.
+        </p>
     </div>
 
-    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-8">
+    <div class="bg-white rounded-xl shadow-sm border border-slate-100 p-8">
         <form th:action="@{/admin/annotateurs/nouveau}" method="post" class="space-y-5">
 
             <div>
                 <label class="block text-sm font-medium text-slate-700 mb-2">Nom</label>
                 <input type="text" name="nom" required
-                       class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none transition-all">
+                       class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:border-slate-500 focus:ring-2 focus:ring-slate-200 outline-none transition-all">
             </div>
 
             <div>
                 <label class="block text-sm font-medium text-slate-700 mb-2">Prénom</label>
                 <input type="text" name="prenom" required
-                       class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none transition-all">
+                       class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:border-slate-500 focus:ring-2 focus:ring-slate-200 outline-none transition-all">
             </div>
 
             <div>
                 <label class="block text-sm font-medium text-slate-700 mb-2">Login</label>
                 <input type="text" name="login" required
-                       class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none transition-all"
-                       placeholder="Ex: k.ali">
+                       class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:border-slate-500 focus:ring-2 focus:ring-slate-200 outline-none transition-all"
+                       placeholder="ex: prenom.nom">
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-slate-700 mb-2">Email</label>
+                <input type="email" name="email" required
+                       class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:border-slate-500 focus:ring-2 focus:ring-slate-200 outline-none transition-all"
+                       placeholder="ex: prenom.nom@gmail.com">
             </div>
 
             <div class="flex gap-4 pt-4">
@@ -63,7 +71,7 @@
                     Annuler
                 </a>
                 <button type="submit"
-                        class="flex-1 px-4 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg font-medium transition-colors shadow-sm">
+                        class="flex-1 px-4 py-2.5 bg-slate-800 hover:bg-slate-900 text-white rounded-lg font-medium transition-colors shadow-sm">
                     <i class="fas fa-check mr-2"></i>Valider
                 </button>
             </div>

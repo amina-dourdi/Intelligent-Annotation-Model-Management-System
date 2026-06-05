@@ -6,73 +6,84 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 </head>
-<body class="bg-slate-50 text-slate-800 font-sans min-h-screen">
+<body class="bg-gradient-to-br from-blue-50 via-white to-indigo-50 text-slate-800 font-sans min-h-screen">
 
 <!-- Navbar -->
-<nav class="bg-slate-900 text-white px-8 py-4 flex justify-between items-center shadow-lg">
+<nav class="bg-white/80 backdrop-blur border-b border-slate-100 px-8 py-4 flex justify-between items-center sticky top-0 z-10">
     <div class="flex items-center gap-3">
-        <i class="fas fa-tags text-emerald-400 text-xl"></i>
-        <span class="font-bold text-lg">NLP Annot</span>
+        <i class="fas fa-tags text-slate-700 text-xl"></i>
+        <span class="font-bold text-lg text-slate-900">NLP Annot</span>
     </div>
     <div class="flex items-center gap-6">
-        <a th:href="@{/admin/dashboard}" class="hover:text-emerald-400 transition-colors">Dashboard</a>
-        <a th:href="@{/admin/datasets}" class="text-emerald-400 font-medium">Datasets</a>
-        <a th:href="@{/admin/annotateurs}" class="hover:text-emerald-400 transition-colors">Annotateurs</a>
+        <a th:href="@{/admin/dashboard}" class="text-slate-500 hover:text-slate-900 transition">Dashboard</a>
+        <a th:href="@{/admin/datasets}" class="text-slate-900 font-medium">Datasets</a>
+        <a th:href="@{/admin/annotateurs}" class="text-slate-500 hover:text-slate-900 transition">Annotateurs</a>
         <form th:action="@{/logout}" method="post" class="inline">
-            <button type="submit" class="text-red-400 hover:text-red-300 transition-colors">
+            <button type="submit" class="text-slate-400 hover:text-red-500 transition">
                 <i class="fas fa-sign-out-alt"></i>
             </button>
         </form>
     </div>
 </nav>
 
-<div class="p-8 max-w-7xl mx-auto">
+<div class="p-8 max-w-6xl mx-auto">
     <div class="flex justify-between items-center mb-6">
         <h2 class="text-xl font-semibold text-slate-700">Liste des Datasets</h2>
         <a th:href="@{/admin/datasets/nouveau}"
-           class="px-5 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg font-medium transition-all shadow-sm hover:shadow">
+           class="px-5 py-2.5 bg-slate-800 hover:bg-slate-900 text-white rounded-lg font-medium transition-all shadow-sm hover:shadow">
             <i class="fas fa-plus mr-2"></i>Créer un dataset
         </a>
     </div>
 
-    <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+    <div class="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
         <table class="w-full text-left">
-            <thead class="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider">
+            <thead class="bg-slate-800 text-white text-sm uppercase tracking-wider">
             <tr>
-                <th class="px-6 py-4 font-medium">ID</th>
-                <th class="px-6 py-4 font-medium">Nom</th>
-                <th class="px-6 py-4 font-medium">Avancement</th>
-                <th class="px-6 py-4 font-medium">Date création</th>
-                <th class="px-6 py-4 font-medium text-right">Actions</th>
+                <th class="px-6 py-4 font-semibold">Nom</th>
+                <th class="px-6 py-4 font-semibold">% Avancement</th>
+                <th class="px-6 py-4 font-semibold text-right">Actions</th>
             </tr>
             </thead>
             <tbody class="divide-y divide-slate-100">
             <tr th:each="ds : ${datasets}" class="hover:bg-slate-50 transition-colors">
-                <td class="px-6 py-4 text-slate-600" th:text="${ds.id}">1</td>
+                <!-- Nom -->
                 <td class="px-6 py-4 font-medium text-slate-700" th:text="${ds.nomDataset}">AR-NLI</td>
+
+                <!-- % Avancement avec barre -->
                 <td class="px-6 py-4">
                     <div class="flex items-center gap-3">
-                        <div class="w-32 h-2 bg-slate-200 rounded-full overflow-hidden">
-                            <div class="h-full bg-emerald-500 rounded-full" style="width: 30%"></div>
+                        <div class="w-40 h-2.5 bg-slate-200 rounded-full overflow-hidden">
+                            <div class="h-full bg-emerald-500 rounded-full transition-all duration-500"
+                                 th:style="'width:' + ${avancements != null && avancements[ds.id] != null ? avancements[ds.id] : 0} + '%'">
+                            </div>
                         </div>
-                        <span class="text-sm text-slate-500">30%</span>
+                        <span class="text-sm font-semibold text-slate-600"
+                              th:text="${(avancements != null && avancements[ds.id] != null ? avancements[ds.id] : 0) + '%'}">0%</span>
                     </div>
                 </td>
-                <td class="px-6 py-4 text-slate-500 text-sm"
-                    th:text="${#temporals.format(ds.dateCreation, 'dd/MM/yyyy')}">--</td>
-                <td class="px-6 py-4 text-right space-x-3">
+
+                <!-- Actions : 4 boutons -->
+                <td class="px-6 py-4 text-right space-x-1">
                     <a th:href="@{/admin/datasets/{id}(id=${ds.id})}"
-                       class="inline-flex items-center px-3 py-1.5 bg-blue-50 text-blue-600 rounded-md text-sm hover:bg-blue-100 transition-colors">
-                        <i class="fas fa-eye mr-1.5"></i>Détails
+                       class="inline-flex items-center px-2.5 py-1.5 bg-blue-50 text-blue-600 rounded-md text-xs hover:bg-blue-100 transition-colors">
+                        <i class="fas fa-eye mr-1"></i>Détails
                     </a>
-                    <a th:href="@{/admin/export/dataset/{id}(id=${ds.id})}"
-                       class="inline-flex items-center px-3 py-1.5 bg-slate-100 text-slate-600 rounded-md text-sm hover:bg-slate-200 transition-colors">
-                        <i class="fas fa-download mr-1.5"></i>Export
+                    <a th:href="@{/admin/datasets/{id}/annotateurs(id=${ds.id})}"
+                       class="inline-flex items-center px-2.5 py-1.5 bg-emerald-50 text-emerald-600 rounded-md text-xs hover:bg-emerald-100 transition-colors">
+                        <i class="fas fa-user-plus mr-1"></i>Ajouter
+                    </a>
+                    <a th:href="@{/admin/datasets/{id}/metrique(id=${ds.id})}"
+                       class="inline-flex items-center px-2.5 py-1.5 bg-purple-50 text-purple-600 rounded-md text-xs hover:bg-purple-100 transition-colors">
+                        <i class="fas fa-chart-bar mr-1"></i>Métrique
+                    </a>
+                    <a th:href="@{/admin/datasets/{id}/spammeurs(id=${ds.id})}"
+                       class="inline-flex items-center px-2.5 py-1.5 bg-amber-50 text-amber-600 rounded-md text-xs hover:bg-amber-100 transition-colors">
+                        <i class="fas fa-shield-alt mr-1"></i>Spammeurs
                     </a>
                 </td>
             </tr>
             <tr th:if="${datasets == null or datasets.isEmpty()}">
-                <td colspan="5" class="px-6 py-8 text-center text-slate-400">
+                <td colspan="3" class="px-6 py-8 text-center text-slate-400">
                     Aucun dataset pour l'instant
                 </td>
             </tr>
