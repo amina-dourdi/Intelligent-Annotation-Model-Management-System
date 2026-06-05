@@ -1,4 +1,4 @@
 package com.ensah.Core.services.Impl;
 
-public class DataServiceImpl {
+public class KappaServiceImpl {
 }
