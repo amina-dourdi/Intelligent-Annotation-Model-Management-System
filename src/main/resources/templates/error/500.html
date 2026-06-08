@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Erreur 500 - NLP Annotation</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 flex items-center justify-center h-screen">
+    <div class="text-center">
+        <h1 class="text-9xl font-bold text-red-500">500</h1>
+        <p class="text-2xl mt-4 font-semibold text-gray-700">Oups! Une erreur est survenue.</p>
+        <p class="mt-2 text-gray-500" th:if="${errorMessage}" th:text="${errorMessage}">Détails de l'erreur</p>
+        <div class="mt-6">
+            <a href="/" class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">Retour à l'accueil</a>
+        </div>
+    </div>
+</body>
+</html>

@@ -23,26 +23,23 @@ public class AnnotateurController {
 
     private final IUtilisateurRepository utilisateurRepository;
     private final IAnnotateurRepository annotateurRepository;
-    private final ITacheRepository tacheRepository;
-    private final ICoupleTexteRepository coupleTexteRepository;
-    private final IAnnotationRepository annotationRepository;
     private final IAffectationService affectationService;
     private final com.ensah.Core.services.IAnnotateurService annotateurService;
+    private final com.ensah.Core.services.IAnnotationWorkspaceService annotationWorkspaceService;
+    private final com.ensah.Core.dao.IAnnotationRepository annotationRepository;
 
     public AnnotateurController(IUtilisateurRepository utilisateurRepository,
                                  IAnnotateurRepository annotateurRepository,
-                                 ITacheRepository tacheRepository,
-                                 ICoupleTexteRepository coupleTexteRepository,
-                                 IAnnotationRepository annotationRepository,
                                  IAffectationService affectationService,
-                                 com.ensah.Core.services.IAnnotateurService annotateurService) {
+                                 com.ensah.Core.services.IAnnotateurService annotateurService,
+                                 com.ensah.Core.services.IAnnotationWorkspaceService annotationWorkspaceService,
+                                 com.ensah.Core.dao.IAnnotationRepository annotationRepository) {
         this.utilisateurRepository = utilisateurRepository;
         this.annotateurRepository = annotateurRepository;
-        this.tacheRepository = tacheRepository;
-        this.coupleTexteRepository = coupleTexteRepository;
-        this.annotationRepository = annotationRepository;
         this.affectationService = affectationService;
         this.annotateurService = annotateurService;
+        this.annotationWorkspaceService = annotationWorkspaceService;
+        this.annotationRepository = annotationRepository;
     }
 
     private Annotateur getCurrentAnnotateur() {
@@ -63,53 +60,18 @@ public class AnnotateurController {
         Long annotateurId = annotateur.getId();
 
         List<Tache> toutesLesTaches = affectationService.listerTachesParAnnotateur(annotateurId);
-        List<Map<String, Object>> taskWrappers = new ArrayList<>();
-
-        int totalAssigned = 0;
-        int totalAnnotatedCount = 0;
-        int completedTasksCount = 0;
-
-        for (Tache t : toutesLesTaches) {
-            int totalCouples = t.getCouples().size();
-            totalAssigned += totalCouples;
-
-            int annotatedCouples = 0;
-            for (CoupleTexte ct : t.getCouples()) {
-                if (annotationRepository.findByCoupleTexteIdAndAnnotateurId(ct.getId(), annotateurId).isPresent()) {
-                    annotatedCouples++;
-                }
-            }
-            totalAnnotatedCount += annotatedCouples;
-
-            int percent = totalCouples == 0 ? 0 : (annotatedCouples * 100) / totalCouples;
-            boolean isCompleted = percent == 100;
-            if (isCompleted) completedTasksCount++;
-
-            Map<String, Object> wrapper = new HashMap<>();
-            wrapper.put("tache", t);
-            wrapper.put("percent", percent);
-            wrapper.put("annotatedCount", annotatedCouples);
-            wrapper.put("totalCount", totalCouples);
-            wrapper.put("status", isCompleted ? "Terminé" : "À faire");
-
-            if ("all".equals(filter) ||
-                ("todo".equals(filter) && !isCompleted) ||
-                ("done".equals(filter) && isCompleted)) {
-                taskWrappers.add(wrapper);
-            }
-        }
-
-        int globalProgress = totalAssigned == 0 ? 0 : (totalAnnotatedCount * 100) / totalAssigned;
+        List<Map<String, Object>> taskWrappers = annotationWorkspaceService.getTaskWrappers(annotateurId, filter);
+        Map<String, Integer> stats = annotationWorkspaceService.getDashboardStats(annotateurId, toutesLesTaches);
 
         model.addAttribute("annotator", annotateur);
         model.addAttribute("tasks", taskWrappers);
         model.addAttribute("activeFilter", filter);
         model.addAttribute("totalTasks", toutesLesTaches.size());
-        model.addAttribute("completedTasks", completedTasksCount);
-        model.addAttribute("pendingTasks", toutesLesTaches.size() - completedTasksCount);
-        model.addAttribute("totalAssigned", totalAssigned);
-        model.addAttribute("totalAnnotated", totalAnnotatedCount);
-        model.addAttribute("globalProgress", globalProgress);
+        model.addAttribute("completedTasks", stats.get("completedTasksCount"));
+        model.addAttribute("pendingTasks", toutesLesTaches.size() - stats.get("completedTasksCount"));
+        model.addAttribute("totalAssigned", stats.get("totalAssigned"));
+        model.addAttribute("totalAnnotated", stats.get("totalAnnotatedCount"));
+        model.addAttribute("globalProgress", stats.get("globalProgress"));
 
         return "annotator/dashboard";
     }
@@ -122,35 +84,21 @@ public class AnnotateurController {
         Annotateur annotateur = getCurrentAnnotateur();
         Long annotateurId = annotateur.getId();
 
-        Tache tache = tacheRepository.findById(tacheId)
-                .orElseThrow(() -> new RuntimeException("Tâche introuvable : " + tacheId));
-
-        if (!tache.getAnnotateur().getId().equals(annotateurId)) {
-            throw new RuntimeException("Accès refusé : Cette tâche ne vous est pas assignée.");
-        }
+        Tache tache = annotationWorkspaceService.getTacheForAnnotateur(tacheId, annotateurId);
 
         Pageable pageable = PageRequest.of(page, 1);
-        Page<CoupleTexte> couplePage = coupleTexteRepository.findCouplesByTacheId(tacheId, pageable);
+        Page<CoupleTexte> couplePage = annotationWorkspaceService.getCouplePage(tacheId, pageable);
 
         CoupleTexte couple = null;
         Annotation existingAnnotation = null;
         if (couplePage.hasContent()) {
             couple = couplePage.getContent().get(0);
-            Optional<Annotation> optAnn = annotationRepository.findByCoupleTexteIdAndAnnotateurId(couple.getId(), annotateurId);
-            if (optAnn.isPresent()) {
-                existingAnnotation = optAnn.get();
-            }
+            existingAnnotation = annotationWorkspaceService.getExistingAnnotation(couple.getId(), annotateurId).orElse(null);
         }
 
-        // Calcul de la progression en temps réel sur la tâche
         int totalCouples = tache.getCouples().size();
-        int annotatedCouples = 0;
-        for (CoupleTexte ct : tache.getCouples()) {
-            if (annotationRepository.findByCoupleTexteIdAndAnnotateurId(ct.getId(), annotateurId).isPresent()) {
-                annotatedCouples++;
-            }
-        }
-        int progressPercent = totalCouples == 0 ? 0 : (annotatedCouples * 100) / totalCouples;
+        long annotatedCouples = annotationWorkspaceService.getAnnotatedCount(tacheId, annotateurId);
+        int progressPercent = annotationWorkspaceService.getProgressPercent(tacheId, annotateurId, totalCouples);
 
         model.addAttribute("task", tache);
         model.addAttribute("couplePage", couplePage);
@@ -175,30 +123,11 @@ public class AnnotateurController {
         Annotateur annotateur = getCurrentAnnotateur();
         Long annotateurId = annotateur.getId();
 
-        Tache tache = tacheRepository.findById(tacheId)
-                .orElseThrow(() -> new RuntimeException("Tâche introuvable : " + tacheId));
+        annotationWorkspaceService.saveAnnotation(tacheId, annotateurId, coupleTexteId, classeChoisie);
 
-        if (!tache.getAnnotateur().getId().equals(annotateurId)) {
-            throw new RuntimeException("Accès refusé.");
-        }
-
-        CoupleTexte ct = coupleTexteRepository.findById(coupleTexteId)
-                .orElseThrow(() -> new RuntimeException("CoupleTexte introuvable : " + coupleTexteId));
-
-        Optional<Annotation> optAnn = annotationRepository.findByCoupleTexteIdAndAnnotateurId(coupleTexteId, annotateurId);
-        Annotation annotation;
-        if (optAnn.isPresent()) {
-            annotation = optAnn.get();
-            annotation.setClasseChoisie(classeChoisie);
-        } else {
-            annotation = new Annotation();
-            annotation.setCoupleTexte(ct);
-            annotation.setAnnotateur(annotateur);
-            annotation.setClasseChoisie(classeChoisie);
-        }
-        annotationRepository.save(annotation);
-
+        Tache tache = annotationWorkspaceService.getTacheForAnnotateur(tacheId, annotateurId);
         int totalCouples = tache.getCouples().size();
+        
         if (page + 1 < totalCouples) {
             return "redirect:/annotator/task/" + tacheId + "?page=" + (page + 1);
         } else {
