@@ -16,11 +16,19 @@ public interface IAnnotationWorkspaceService {
     
     Map<String, Integer> getDashboardStats(Long annotateurId, List<Tache> toutesLesTaches);
     
+    Map<String, Integer> getDashboardStatsDTO(Long annotateurId, List<com.ensah.Core.dtos.TacheDTO> toutesLesTaches);
+    
     Tache getTacheForAnnotateur(Long tacheId, Long annotateurId);
+    
+    com.ensah.Core.dtos.TacheDTO getTacheDTOForAnnotateur(Long tacheId, Long annotateurId);
     
     Page<CoupleTexte> getCouplePage(Long tacheId, Pageable pageable);
     
+    Page<com.ensah.Core.dtos.CoupleTexteDTO> getCoupleDTOPage(Long tacheId, Pageable pageable);
+    
     Optional<Annotation> getExistingAnnotation(Long coupleTexteId, Long annotateurId);
+    
+    Optional<com.ensah.Core.dtos.AnnotationDTO> getExistingAnnotationDTO(Long coupleTexteId, Long annotateurId);
     
     int getProgressPercent(Long tacheId, Long annotateurId, int totalCouples);
     

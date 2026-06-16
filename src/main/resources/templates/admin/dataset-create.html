@@ -1,87 +1,101 @@
-<!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Créer un Dataset</title>
+    <title>Créer un Dataset - Administration</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style> body { font-family: 'Inter', sans-serif; } </style>
 </head>
-<body class="bg-gradient-to-br from-blue-50 via-white to-indigo-50 text-slate-800 font-sans min-h-screen">
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
 
-<!-- Navbar -->
-<nav class="bg-white/80 backdrop-blur border-b border-slate-100 px-8 py-4 flex justify-between items-center sticky top-0 z-10">
-    <div class="flex items-center gap-3">
-        <i class="fas fa-tags text-slate-700 text-xl"></i>
-        <span class="font-bold text-lg text-slate-900">NLP Annot</span>
-    </div>
-    <div class="flex items-center gap-6">
-        <a th:href="@{/admin/dashboard}" class="text-slate-500 hover:text-slate-900 transition">Dashboard</a>
-        <a th:href="@{/admin/datasets}" class="text-slate-900 font-medium">Datasets</a>
-        <a th:href="@{/admin/annotateurs}" class="text-slate-500 hover:text-slate-900 transition">Annotateurs</a>
-        <form th:action="@{/logout}" method="post" class="inline">
-            <button type="submit" class="text-slate-400 hover:text-red-500 transition">
-                <i class="fas fa-sign-out-alt"></i>
-            </button>
-        </form>
+<!-- Navigation -->
+<nav class="bg-white border-b border-slate-200 sticky top-0 z-10">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between h-16">
+            <div class="flex items-center">
+                <span class="font-bold text-lg text-slate-900 tracking-tight flex items-center">
+                    <i class="fas fa-layer-group text-blue-600 mr-2"></i> NLP Annot Admin
+                </span>
+            </div>
+            <div class="flex items-center space-x-6 text-sm">
+                <a th:href="@{/admin/dashboard}" class="text-slate-500 hover:text-slate-900 transition-colors">Tableau de bord</a>
+                <a th:href="@{/admin/datasets}" class="text-blue-600 font-medium">Datasets</a>
+                <a th:href="@{/admin/annotateurs}" class="text-slate-500 hover:text-slate-900 transition-colors">Utilisateurs</a>
+                <div class="w-px h-4 bg-slate-300"></div>
+                <form th:action="@{/logout}" method="post" class="m-0">
+                    <button type="submit" class="text-slate-400 hover:text-red-600 transition-colors" title="Déconnexion">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
     </div>
 </nav>
 
-<div class="p-8 max-w-2xl mx-auto">
+<main class="flex-grow max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
     <div class="mb-6">
-        <a th:href="@{/admin/datasets}" class="text-slate-500 hover:text-slate-900 text-sm transition">
-            <i class="fas fa-arrow-left mr-1"></i>Retour
+        <a th:href="@{/admin/datasets}" class="inline-flex items-center text-sm font-medium text-slate-500 hover:text-slate-900 transition-colors mb-2">
+            <i class="fas fa-arrow-left mr-2"></i> Retour à la liste
         </a>
-        <h2 class="text-2xl font-bold text-slate-800 mt-2">Créer un Dataset</h2>
+        <h2 class="text-2xl font-bold text-slate-900 tracking-tight">Créer un Dataset</h2>
+        <p class="text-sm text-slate-500 mt-1">Importez vos données et définissez les paramètres d'annotation.</p>
     </div>
 
-    <div class="bg-white rounded-xl shadow-sm border border-slate-100 p-8">
-        <form th:action="@{/admin/datasets/nouveau}" method="post" enctype="multipart/form-data" class="space-y-6">
+    <div class="bg-white rounded-lg shadow-sm border border-slate-200 p-6">
+        <form th:action="@{/admin/datasets/nouveau}" method="post" enctype="multipart/form-data" class="space-y-5">
 
             <div>
-                <label class="block text-sm font-medium text-slate-700 mb-2">Nom du dataset</label>
+                <label class="block text-sm font-medium text-slate-700 mb-1">Nom du dataset</label>
                 <input type="text" name="nom" required
-                       class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:border-slate-500 focus:ring-2 focus:ring-slate-200 outline-none transition-all"
+                       class="w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-sm"
                        placeholder="Ex: NLI-AR">
             </div>
 
             <div>
-                <label class="block text-sm font-medium text-slate-700 mb-2">Description</label>
+                <label class="block text-sm font-medium text-slate-700 mb-1">Description</label>
                 <textarea name="description" rows="3"
-                          class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:border-slate-500 focus:ring-2 focus:ring-slate-200 outline-none transition-all"
-                          placeholder="Description optionnelle..."></textarea>
+                          class="w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-sm"
+                          placeholder="Description optionnelle de l'objectif d'annotation..."></textarea>
             </div>
 
             <div>
-                <label class="block text-sm font-medium text-slate-700 mb-2">Classes possibles <span class="text-slate-400 font-normal">(séparées par ;)</span></label>
+                <label class="block text-sm font-medium text-slate-700 mb-1">Classes possibles <span class="text-slate-400 font-normal">(séparées par un point-virgule ;)</span></label>
                 <input type="text" name="classes" required
-                       class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:border-slate-500 focus:ring-2 focus:ring-slate-200 outline-none transition-all"
-                       placeholder="Ex: N;E;C  ou  similar;not similar">
+                       class="w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-sm"
+                       placeholder="Ex: Entailment;Neutral;Contradiction">
             </div>
 
             <div>
-                <label class="block text-sm font-medium text-slate-700 mb-2">Fichier (CSV ou JSON)</label>
-                <div class="border-2 border-dashed border-slate-300 rounded-lg p-6 text-center hover:border-slate-400 transition-colors cursor-pointer relative">
+                <label class="block text-sm font-medium text-slate-700 mb-1">Fichier de données (CSV ou JSON)</label>
+                <div class="border-2 border-dashed border-slate-300 rounded-lg p-6 text-center hover:bg-slate-50 transition-colors cursor-pointer relative bg-white group">
                     <input type="file" name="fichier" accept=".csv,.json" required
                            class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
-                    <i class="fas fa-cloud-upload-alt text-3xl text-slate-400 mb-2"></i>
-                    <p class="text-sm text-slate-500">Cliquez ou glissez un fichier ici</p>
-                    <p class="text-xs text-slate-400 mt-1">CSV: text1,text2 | JSON: [{text1, text2}]</p>
+                    <div class="text-slate-500 group-hover:text-blue-600 transition-colors">
+                        <i class="fas fa-cloud-upload-alt text-3xl mb-2"></i>
+                        <p class="text-sm font-medium">Cliquez ou glissez un fichier ici</p>
+                    </div>
+                    <p class="text-xs text-slate-400 mt-2 font-mono">CSV: texte1,texte2 | JSON: [{"texte1": "...", "texte2": "..."}]</p>
                 </div>
             </div>
 
-            <div class="flex gap-4 pt-4">
+            <div class="pt-4 flex gap-3">
                 <a th:href="@{/admin/datasets}"
-                   class="flex-1 px-4 py-2.5 border border-slate-300 text-slate-600 rounded-lg text-center hover:bg-slate-50 transition-colors font-medium">
+                   class="flex-1 inline-flex justify-center py-2 px-4 border border-slate-300 rounded-md shadow-sm text-sm font-medium text-slate-700 bg-white hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
                     Annuler
                 </a>
                 <button type="submit"
-                        class="flex-1 px-4 py-2.5 bg-slate-800 hover:bg-slate-900 text-white rounded-lg font-medium transition-colors shadow-sm">
-                    <i class="fas fa-check mr-2"></i>Créer
+                        class="flex-1 inline-flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
+                    Créer le dataset
                 </button>
             </div>
         </form>
     </div>
-</div>
+</main>
+
+<footer class="mt-auto bg-white border-t border-slate-200 py-6 text-center text-xs text-slate-500">
+    &copy; 2026 NLP Annotation. Interface d'administration.
+</footer>
 
 </body>
 </html>

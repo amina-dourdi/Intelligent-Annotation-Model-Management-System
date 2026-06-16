@@ -27,19 +27,26 @@ public class AnnotateurController {
     private final com.ensah.Core.services.IAnnotateurService annotateurService;
     private final com.ensah.Core.services.IAnnotationWorkspaceService annotationWorkspaceService;
     private final com.ensah.Core.dao.IAnnotationRepository annotationRepository;
+    private final com.ensah.Core.mappers.EntityMapper entityMapper;
 
     public AnnotateurController(IUtilisateurRepository utilisateurRepository,
                                  IAnnotateurRepository annotateurRepository,
                                  IAffectationService affectationService,
                                  com.ensah.Core.services.IAnnotateurService annotateurService,
                                  com.ensah.Core.services.IAnnotationWorkspaceService annotationWorkspaceService,
-                                 com.ensah.Core.dao.IAnnotationRepository annotationRepository) {
+                                 com.ensah.Core.dao.IAnnotationRepository annotationRepository,
+                                 com.ensah.Core.mappers.EntityMapper entityMapper) {
         this.utilisateurRepository = utilisateurRepository;
         this.annotateurRepository = annotateurRepository;
         this.affectationService = affectationService;
         this.annotateurService = annotateurService;
         this.annotationWorkspaceService = annotationWorkspaceService;
         this.annotationRepository = annotationRepository;
+        this.entityMapper = entityMapper;
+    }
+
+    private com.ensah.Core.dtos.AnnotateurDTO getCurrentAnnotateurDTO() {
+        return entityMapper.toDTO(getCurrentAnnotateur());
     }
 
     private Annotateur getCurrentAnnotateur() {
@@ -56,12 +63,12 @@ public class AnnotateurController {
 
     @GetMapping("/annotator")
     public String dashboard(@RequestParam(value = "filter", defaultValue = "all") String filter, Model model) {
-        Annotateur annotateur = getCurrentAnnotateur();
+        com.ensah.Core.dtos.AnnotateurDTO annotateur = getCurrentAnnotateurDTO();
         Long annotateurId = annotateur.getId();
 
-        List<Tache> toutesLesTaches = affectationService.listerTachesParAnnotateur(annotateurId);
+        List<com.ensah.Core.dtos.TacheDTO> toutesLesTaches = affectationService.listerTachesDTOParAnnotateur(annotateurId);
         List<Map<String, Object>> taskWrappers = annotationWorkspaceService.getTaskWrappers(annotateurId, filter);
-        Map<String, Integer> stats = annotationWorkspaceService.getDashboardStats(annotateurId, toutesLesTaches);
+        Map<String, Integer> stats = annotationWorkspaceService.getDashboardStatsDTO(annotateurId, toutesLesTaches);
 
         model.addAttribute("annotator", annotateur);
         model.addAttribute("tasks", taskWrappers);
@@ -81,22 +88,22 @@ public class AnnotateurController {
                             @RequestParam(value = "page", defaultValue = "0") int page,
                             @RequestParam(value = "saved", defaultValue = "false") boolean saved,
                             Model model) {
-        Annotateur annotateur = getCurrentAnnotateur();
+        com.ensah.Core.dtos.AnnotateurDTO annotateur = getCurrentAnnotateurDTO();
         Long annotateurId = annotateur.getId();
 
-        Tache tache = annotationWorkspaceService.getTacheForAnnotateur(tacheId, annotateurId);
+        com.ensah.Core.dtos.TacheDTO tache = annotationWorkspaceService.getTacheDTOForAnnotateur(tacheId, annotateurId);
 
         Pageable pageable = PageRequest.of(page, 1);
-        Page<CoupleTexte> couplePage = annotationWorkspaceService.getCouplePage(tacheId, pageable);
+        Page<com.ensah.Core.dtos.CoupleTexteDTO> couplePage = annotationWorkspaceService.getCoupleDTOPage(tacheId, pageable);
 
-        CoupleTexte couple = null;
-        Annotation existingAnnotation = null;
+        com.ensah.Core.dtos.CoupleTexteDTO couple = null;
+        com.ensah.Core.dtos.AnnotationDTO existingAnnotation = null;
         if (couplePage.hasContent()) {
             couple = couplePage.getContent().get(0);
-            existingAnnotation = annotationWorkspaceService.getExistingAnnotation(couple.getId(), annotateurId).orElse(null);
+            existingAnnotation = annotationWorkspaceService.getExistingAnnotationDTO(couple.getId(), annotateurId).orElse(null);
         }
 
-        int totalCouples = tache.getCouples().size();
+        int totalCouples = tache.getTotalCouples();
         long annotatedCouples = annotationWorkspaceService.getAnnotatedCount(tacheId, annotateurId);
         int progressPercent = annotationWorkspaceService.getProgressPercent(tacheId, annotateurId, totalCouples);
 
@@ -120,13 +127,13 @@ public class AnnotateurController {
                            @RequestParam("coupleTexteId") Long coupleTexteId,
                            @RequestParam("classeChoisie") String classeChoisie,
                            @RequestParam("page") int page) {
-        Annotateur annotateur = getCurrentAnnotateur();
+        com.ensah.Core.dtos.AnnotateurDTO annotateur = getCurrentAnnotateurDTO();
         Long annotateurId = annotateur.getId();
 
         annotationWorkspaceService.saveAnnotation(tacheId, annotateurId, coupleTexteId, classeChoisie);
 
-        Tache tache = annotationWorkspaceService.getTacheForAnnotateur(tacheId, annotateurId);
-        int totalCouples = tache.getCouples().size();
+        com.ensah.Core.dtos.TacheDTO tache = annotationWorkspaceService.getTacheDTOForAnnotateur(tacheId, annotateurId);
+        int totalCouples = tache.getTotalCouples();
         
         if (page + 1 < totalCouples) {
             return "redirect:/annotator/task/" + tacheId + "?page=" + (page + 1);
@@ -137,13 +144,13 @@ public class AnnotateurController {
 
     @GetMapping("/annotator/stats")
     public String stats(Model model) {
-        Annotateur annotateur = getCurrentAnnotateur();
+        com.ensah.Core.dtos.AnnotateurDTO annotateur = getCurrentAnnotateurDTO();
         Long annotateurId = annotateur.getId();
 
-        List<Tache> taches = affectationService.listerTachesParAnnotateur(annotateurId);
+        List<com.ensah.Core.dtos.TacheDTO> taches = affectationService.listerTachesDTOParAnnotateur(annotateurId);
         int totalAssigned = 0;
-        for (Tache t : taches) {
-            totalAssigned += t.getCouples().size();
+        for (com.ensah.Core.dtos.TacheDTO t : taches) {
+            totalAssigned += t.getTotalCouples();
         }
 
         List<Annotation> annotations = annotationRepository.findByAnnotateurId(annotateurId);
@@ -162,13 +169,14 @@ public class AnnotateurController {
         }
 
         // Récupérer les 10 dernières annotations
-        List<Annotation> recentAnnotations = annotations.stream()
+        List<com.ensah.Core.dtos.AnnotationDTO> recentAnnotations = annotations.stream()
                 .sorted((a1, a2) -> {
                     if (a1.getDateAnnotation() == null) return 1;
                     if (a2.getDateAnnotation() == null) return -1;
                     return a2.getDateAnnotation().compareTo(a1.getDateAnnotation());
                 })
                 .limit(10)
+                .map(entityMapper::toDTO)
                 .toList();
 
         model.addAttribute("annotator", annotateur);
@@ -183,7 +191,7 @@ public class AnnotateurController {
 
     @GetMapping("/annotator/profile")
     public String profile(Model model) {
-        Annotateur annotateur = getCurrentAnnotateur();
+        com.ensah.Core.dtos.AnnotateurDTO annotateur = getCurrentAnnotateurDTO();
         model.addAttribute("annotator", annotateur);
         return "annotator/profile";
     }
@@ -193,7 +201,7 @@ public class AnnotateurController {
                                 @RequestParam("prenom") String prenom,
                                 @RequestParam("login") String login,
                                 org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
-        Annotateur annotateur = getCurrentAnnotateur();
+        com.ensah.Core.dtos.AnnotateurDTO annotateur = getCurrentAnnotateurDTO();
         try {
             annotateurService.modifierAnnotateur(annotateur.getId(), nom, prenom, login, annotateur.getEmail());
             redirectAttributes.addFlashAttribute("successMessage", "Profil mis à jour avec succès.");
@@ -208,7 +216,7 @@ public class AnnotateurController {
                                  @RequestParam("newPassword") String newPassword,
                                  @RequestParam("confirmPassword") String confirmPassword,
                                  org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
-        Annotateur annotateur = getCurrentAnnotateur();
+        com.ensah.Core.dtos.AnnotateurDTO annotateur = getCurrentAnnotateurDTO();
         if (!newPassword.equals(confirmPassword)) {
             redirectAttributes.addFlashAttribute("errorPassword", "Les nouveaux mots de passe ne correspondent pas.");
             return "redirect:/annotator/profile";

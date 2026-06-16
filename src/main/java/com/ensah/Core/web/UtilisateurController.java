@@ -21,13 +21,13 @@ public class UtilisateurController {
 
     @GetMapping
     public String lister(Model model) {
-        model.addAttribute("annotateurs", annotateurService.listerAnnotateursActifs());
+        model.addAttribute("annotateurs", annotateurService.listerAnnotateursDTOActifs());
         return "admin/users";
     }
 
     @GetMapping("/{id}/modifier")
     public String formulaireModification(@PathVariable Long id, Model model) {
-        Annotateur annotateur = annotateurService.getAnnotateurById(id);
+        com.ensah.Core.dtos.AnnotateurDTO annotateur = annotateurService.getAnnotateurDTOById(id);
         model.addAttribute("annotateur", annotateur);
         return "admin/user-edit";
     }

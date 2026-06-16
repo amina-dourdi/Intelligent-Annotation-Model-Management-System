@@ -31,13 +31,16 @@ public class DatasetController {
     private final ICoupleTexteRepository coupleTexteRepository;
     private final ITacheRepository tacheRepository;
     private final ISpamDetectionService spamDetectionService;
+    private final com.ensah.Core.mappers.EntityMapper entityMapper;
+
     public DatasetController(IDatasetService datasetService,
                              IAnnotateurService annotateurService,
                              IAffectationService affectationService,
                              ICoupleTexteRepository coupleTexteRepository,
                              ITacheRepository tacheRepository,
                              ISpamDetectionService spamDetectionService,
-                             IKappaService kappaService) {
+                             IKappaService kappaService,
+                             com.ensah.Core.mappers.EntityMapper entityMapper) {
         this.datasetService = datasetService;
         this.annotateurService = annotateurService;
         this.affectationService = affectationService;
@@ -45,15 +48,16 @@ public class DatasetController {
         this.tacheRepository = tacheRepository;
         this.spamDetectionService = spamDetectionService;
         this.kappaService = kappaService;
+        this.entityMapper = entityMapper;
     }
 
     // ==================== UC3 : Liste des datasets ====================
     @GetMapping
     public String lister(Model model) {
-        List<Dataset> datasets = datasetService.listerDatasets();
+        List<com.ensah.Core.dtos.DatasetDTO> datasets = datasetService.listerDatasets();
 
         Map<Long, Integer> avancements = new HashMap<>();
-        for (Dataset ds : datasets) {
+        for (com.ensah.Core.dtos.DatasetDTO ds : datasets) {
             avancements.put(ds.getId(), datasetService.calculerPourcentageAvancement(ds.getId()));
         }
 
@@ -89,12 +93,12 @@ public class DatasetController {
     public String details(@PathVariable Long id,
                           @RequestParam(defaultValue = "0") int page,
                           Model model) {
-        Dataset ds = datasetService.getDatasetById(id);
+        com.ensah.Core.dtos.DatasetDTO ds = datasetService.getDatasetDTOById(id);
         int avancement = datasetService.calculerPourcentageAvancement(id);
 
         // Pagination : 100 couples par page
         Pageable pageable = PageRequest.of(page, 100);
-        Page<CoupleTexte> couplesPage = coupleTexteRepository.findByDatasetId(id, pageable);
+        Page<com.ensah.Core.dtos.CoupleTexteDTO> couplesPage = coupleTexteRepository.findByDatasetId(id, pageable).map(entityMapper::toDTO);
 
         model.addAttribute("dataset", ds);
         model.addAttribute("avancement", avancement);
@@ -105,10 +109,10 @@ public class DatasetController {
     // ==================== UC3.3 : Page affectation annotateurs ====================
     @GetMapping("/{id}/annotateurs")
     public String pageAffectationAnnotateurs(@PathVariable Long id, Model model) {
-        Dataset ds = datasetService.getDatasetById(id);
-        List<Annotateur> annotateurs = annotateurService.listerAnnotateursActifs();
+        com.ensah.Core.dtos.DatasetDTO ds = datasetService.getDatasetDTOById(id);
+        List<com.ensah.Core.dtos.AnnotateurDTO> annotateurs = annotateurService.listerAnnotateursDTOActifs();
 
-        List<Tache> tachesExistantes = affectationService.listerTachesParDataset(id);
+        List<com.ensah.Core.dtos.TacheDTO> tachesExistantes = affectationService.listerTachesDTOParDataset(id);
         List<Long> idsAffectes = tachesExistantes.stream()
                 .map(t -> t.getAnnotateur().getId())
                 .toList();
@@ -177,7 +181,7 @@ public class DatasetController {
     }
     @GetMapping("/{id}/metrique")
     public String afficherMetrique(@PathVariable Long id, Model model) {
-        Dataset ds = datasetService.getDatasetById(id);
+        com.ensah.Core.dtos.DatasetDTO ds = datasetService.getDatasetDTOById(id);
         IKappaService.KappaResult kappa = kappaService.calculerFleissKappa(id);
 
         model.addAttribute("dataset", ds);
@@ -188,7 +192,7 @@ public class DatasetController {
     // ==================== UC5.2 : Détection des spammeurs ====================
     @GetMapping("/{id}/spammeurs")
     public String detecterSpammeurs(@PathVariable Long id, Model model) {
-        Dataset ds = datasetService.getDatasetById(id);
+        com.ensah.Core.dtos.DatasetDTO ds = datasetService.getDatasetDTOById(id);
         List<Map<String, Object>> analyses = spamDetectionService.detecterSpammeursParKappa(id);
 
         long spammeurCount = analyses.stream().filter(a -> Boolean.TRUE.equals(a.get("estSpammeur"))).count();

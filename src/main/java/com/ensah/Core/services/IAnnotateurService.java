@@ -6,19 +6,25 @@ import java.util.Map;
 
 public interface IAnnotateurService {
 
+    List<com.ensah.Core.dtos.AnnotateurDTO> listerAnnotateursDTOActifs();
+    
     List<Annotateur> listerAnnotateursActifs();
 
-    Annotateur creerAnnotateur(String nom, String prenom, String login, String email);
+    com.ensah.Core.dtos.AnnotateurDTO creerAnnotateur(String nom, String prenom, String login, String email);
 
-    Annotateur modifierAnnotateur(Long id, String nom, String prenom, String login, String email);
+    com.ensah.Core.dtos.AnnotateurDTO modifierAnnotateur(Long id, String nom, String prenom, String login, String email);
 
     void supprimerAnnotateurLogique(Long id);
+
+    com.ensah.Core.dtos.AnnotateurDTO getAnnotateurDTOById(Long id);
 
     Annotateur getAnnotateurById(Long id);
 
     String genererMotDePasse();
 
     boolean changerMotDePasse(Long id, String ancienMdp, String nouveauMdp);
+
+    com.ensah.Core.dtos.AnnotateurDTO getAnnotateurDTOByFirstLoginToken(String token);
 
     Annotateur getAnnotateurByFirstLoginToken(String token);
 

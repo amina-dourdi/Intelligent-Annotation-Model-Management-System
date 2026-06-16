@@ -28,15 +28,18 @@ public class AnnotationWorkspaceServiceImpl implements IAnnotationWorkspaceServi
     private final ICoupleTexteRepository coupleTexteRepository;
     private final IAnnotationRepository annotationRepository;
     private final IAffectationService affectationService;
+    private final com.ensah.Core.mappers.EntityMapper entityMapper;
 
     public AnnotationWorkspaceServiceImpl(ITacheRepository tacheRepository,
                                           ICoupleTexteRepository coupleTexteRepository,
                                           IAnnotationRepository annotationRepository,
-                                          IAffectationService affectationService) {
+                                          IAffectationService affectationService,
+                                          com.ensah.Core.mappers.EntityMapper entityMapper) {
         this.tacheRepository = tacheRepository;
         this.coupleTexteRepository = coupleTexteRepository;
         this.annotationRepository = annotationRepository;
         this.affectationService = affectationService;
+        this.entityMapper = entityMapper;
     }
 
     @Override
@@ -96,6 +99,34 @@ public class AnnotationWorkspaceServiceImpl implements IAnnotationWorkspaceServi
     }
 
     @Override
+    public Map<String, Integer> getDashboardStatsDTO(Long annotateurId, List<com.ensah.Core.dtos.TacheDTO> toutesLesTaches) {
+        int totalAssigned = 0;
+        int totalAnnotatedCount = 0;
+        int completedTasksCount = 0;
+
+        for (com.ensah.Core.dtos.TacheDTO t : toutesLesTaches) {
+            int totalCouples = t.getTotalCouples();
+            totalAssigned += totalCouples;
+
+            long annotatedCouples = annotationRepository.countByTacheIdAndAnnotateurId(t.getId(), annotateurId);
+            totalAnnotatedCount += annotatedCouples;
+
+            if (totalCouples > 0 && annotatedCouples == totalCouples) {
+                completedTasksCount++;
+            }
+        }
+
+        int globalProgress = totalAssigned == 0 ? 0 : (totalAnnotatedCount * 100) / totalAssigned;
+
+        Map<String, Integer> stats = new HashMap<>();
+        stats.put("totalAssigned", totalAssigned);
+        stats.put("totalAnnotatedCount", totalAnnotatedCount);
+        stats.put("completedTasksCount", completedTasksCount);
+        stats.put("globalProgress", globalProgress);
+        return stats;
+    }
+
+    @Override
     public Tache getTacheForAnnotateur(Long tacheId, Long annotateurId) {
         Tache tache = tacheRepository.findById(tacheId)
                 .orElseThrow(() -> new RuntimeException("Tâche introuvable : " + tacheId));
@@ -107,13 +138,28 @@ public class AnnotationWorkspaceServiceImpl implements IAnnotationWorkspaceServi
     }
 
     @Override
+    public com.ensah.Core.dtos.TacheDTO getTacheDTOForAnnotateur(Long tacheId, Long annotateurId) {
+        return entityMapper.toDTO(getTacheForAnnotateur(tacheId, annotateurId));
+    }
+
+    @Override
     public Page<CoupleTexte> getCouplePage(Long tacheId, Pageable pageable) {
         return coupleTexteRepository.findCouplesByTacheId(tacheId, pageable);
     }
 
     @Override
+    public Page<com.ensah.Core.dtos.CoupleTexteDTO> getCoupleDTOPage(Long tacheId, Pageable pageable) {
+        return getCouplePage(tacheId, pageable).map(entityMapper::toDTO);
+    }
+
+    @Override
     public Optional<Annotation> getExistingAnnotation(Long coupleTexteId, Long annotateurId) {
         return annotationRepository.findByCoupleTexteIdAndAnnotateurId(coupleTexteId, annotateurId);
+    }
+
+    @Override
+    public Optional<com.ensah.Core.dtos.AnnotationDTO> getExistingAnnotationDTO(Long coupleTexteId, Long annotateurId) {
+        return getExistingAnnotation(coupleTexteId, annotateurId).map(entityMapper::toDTO);
     }
 
     @Override
