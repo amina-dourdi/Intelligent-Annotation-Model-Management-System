@@ -10,6 +10,6 @@ import java.util.Optional;
 @Repository
 public interface IAnnotateurRepository extends JpaRepository<Annotateur, Long> {
 
-    Optional<Annotateur> findByLogin(String login);
+Optional<Annotateur> findByLogin(String login);
 List<Annotateur> findByActifTrue();
 Optional<Annotateur> findByFirstLoginToken(String token);}

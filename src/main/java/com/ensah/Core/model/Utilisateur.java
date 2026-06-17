@@ -15,6 +15,7 @@ import lombok.*;
 
 @Entity
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+//personnalisation du colonne descriminante DTYPEgi
 @DiscriminatorColumn(name = "dtype", discriminatorType = DiscriminatorType.STRING)
 @DiscriminatorValue("Utilisateur")
 public class Utilisateur {
