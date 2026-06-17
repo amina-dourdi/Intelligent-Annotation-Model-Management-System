@@ -54,6 +54,12 @@
          class="inline-flex items-center px-3 py-1.5 border border-slate-300 shadow-sm text-xs font-medium rounded text-slate-700 bg-white hover:bg-slate-50 transition-colors">
         <i class="fas fa-user-plus mr-1.5"></i> Assigner
       </a>
+      <a th:href="@{/admin/datasets/{id}/spammeurs(id=${dataset.id})}" class="inline-flex items-center px-3 py-1.5 border border-slate-300 shadow-sm text-xs font-medium rounded text-slate-700 bg-white hover:bg-slate-50 transition-colors">
+        <i class="fas fa-shield-alt mr-1.5 text-red-500"></i> Spammeurs
+      </a>
+      <a th:href="@{/admin/datasets/{id}/train(id=${dataset.id})}" class="inline-flex items-center px-3 py-1.5 border border-slate-300 shadow-sm text-xs font-medium rounded text-slate-700 bg-white hover:bg-slate-50 transition-colors">
+        <i class="fas fa-brain mr-1.5 text-indigo-500"></i> Entraînement
+      </a>
       <a th:href="@{/admin/datasets/{id}/metrique(id=${dataset.id})}"
          class="inline-flex items-center px-3 py-1.5 border border-slate-300 shadow-sm text-xs font-medium rounded text-slate-700 bg-white hover:bg-slate-50 transition-colors">
         <i class="fas fa-chart-bar mr-1.5"></i> Métriques

@@ -7,6 +7,7 @@ import com.ensah.Core.model.CoupleTexte;
 import com.ensah.Core.model.Dataset;
 import com.ensah.Core.model.Tache;
 import com.ensah.Core.model.Annotation;
+import com.ensah.Core.model.Utilisateur;
 import com.ensah.Core.services.*;
 
 import org.springframework.data.domain.Page;
@@ -35,6 +36,8 @@ public class DatasetController {
     private final IMachineLearningService machineLearningService;
     private final com.ensah.Core.dao.IAnnotateurRepository annotateurRepository;
     private final com.ensah.Core.dao.IAnnotationRepository annotationRepository;
+    private final com.ensah.Core.dao.IUtilisateurRepository utilisateurRepository;
+    private final IMlTrainingService mlTrainingService;
     private final com.ensah.Core.mappers.EntityMapper entityMapper;
 
     public DatasetController(IDatasetService datasetService,
@@ -47,6 +50,8 @@ public class DatasetController {
                              IMachineLearningService machineLearningService,
                              com.ensah.Core.dao.IAnnotateurRepository annotateurRepository,
                              com.ensah.Core.dao.IAnnotationRepository annotationRepository,
+                             com.ensah.Core.dao.IUtilisateurRepository utilisateurRepository,
+                             IMlTrainingService mlTrainingService,
                              com.ensah.Core.mappers.EntityMapper entityMapper) {
         this.datasetService = datasetService;
         this.annotateurService = annotateurService;
@@ -58,6 +63,8 @@ public class DatasetController {
         this.machineLearningService = machineLearningService;
         this.annotateurRepository = annotateurRepository;
         this.annotationRepository = annotationRepository;
+        this.utilisateurRepository = utilisateurRepository;
+        this.mlTrainingService = mlTrainingService;
         this.entityMapper = entityMapper;
     }
 
@@ -320,5 +327,36 @@ public class DatasetController {
             redirectAttributes.addFlashAttribute("error", "Erreur lors de l'auto-annotation : " + e.getMessage());
         }
         return "redirect:/admin/datasets/" + id;
+    }
+
+    // ==================== UC5 : Entraînement NLP ====================
+    @GetMapping("/{id}/train")
+    public String pageEntrainement(@PathVariable Long id, Model model) {
+        Dataset ds = datasetService.getDatasetEntityById(id);
+        List<com.ensah.Core.model.EntrainementModele> historique = mlTrainingService.getHistoriqueByDataset(id);
+        
+        model.addAttribute("dataset", ds);
+        model.addAttribute("historique", historique);
+        return "admin/dataset-train";
+    }
+
+    @PostMapping("/{id}/train")
+    public String lancerEntrainement(@PathVariable Long id,
+                                     @RequestParam int epochs,
+                                     @RequestParam double lr,
+                                     @RequestParam int batchSize,
+                                     org.springframework.security.core.Authentication auth,
+                                     RedirectAttributes redirectAttributes) {
+        try {
+            String login = auth.getName();
+            Utilisateur u = utilisateurRepository.findByLogin(login)
+                .orElseThrow(() -> new RuntimeException("Utilisateur introuvable : " + login));
+            
+            mlTrainingService.lancerEntrainement(id, u.getId(), epochs, lr, batchSize);
+            redirectAttributes.addFlashAttribute("success", "L'entraînement a été lancé et terminé avec succès.");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Erreur lors de l'entraînement : " + e.getMessage());
+        }
+        return "redirect:/admin/datasets/" + id + "/train";
     }
 }

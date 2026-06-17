@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Entraînement Modèle ML - Administration</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style> body { font-family: 'Inter', sans-serif; } </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
+
+<!-- Navigation (Similaire aux autres pages admin) -->
+<nav class="bg-white border-b border-slate-200 sticky top-0 z-10">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between h-16">
+            <div class="flex items-center">
+                <span class="font-bold text-lg text-slate-900 tracking-tight flex items-center">
+                    <i class="fas fa-layer-group text-blue-600 mr-2"></i> NLP Annot Admin
+                </span>
+            </div>
+            <div class="flex items-center space-x-6 text-sm">
+                <a th:href="@{/admin/dashboard}" class="text-slate-500 hover:text-slate-900 transition-colors">Tableau de bord</a>
+                <a th:href="@{/admin/datasets}" class="text-blue-600 font-medium">Datasets</a>
+                <a th:href="@{/admin/annotateurs}" class="text-slate-500 hover:text-slate-900 transition-colors">Utilisateurs</a>
+                <div class="w-px h-4 bg-slate-300"></div>
+                <form th:action="@{/logout}" method="post" class="m-0">
+                    <button type="submit" class="text-slate-400 hover:text-red-600 transition-colors" title="Déconnexion">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<main class="flex-grow max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+
+    <div th:if="${success}" class="mb-6 p-4 bg-green-50 border border-green-200 text-green-700 rounded-md flex items-start text-sm">
+        <i class="fas fa-check-circle mt-0.5 mr-3 text-green-500"></i>
+        <span th:text="${success}"></span>
+    </div>
+    <div th:if="${error}" class="mb-6 p-4 bg-red-50 border border-red-200 text-red-700 rounded-md flex items-start text-sm">
+        <i class="fas fa-exclamation-circle mt-0.5 mr-3 text-red-500"></i>
+        <span th:text="${error}"></span>
+    </div>
+
+    <!-- En-tête -->
+    <div class="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+            <a th:href="@{/admin/datasets/{id}(id=${dataset.id})}" class="inline-flex items-center text-sm font-medium text-slate-500 hover:text-slate-900 transition-colors mb-2">
+                <i class="fas fa-arrow-left mr-2"></i> Retour aux détails
+            </a>
+            <h1 class="text-2xl font-bold text-slate-900 tracking-tight">Entraînement de Modèle ML</h1>
+            <p class="text-slate-500 mt-1">Dataset: <span class="font-semibold text-slate-700" th:text="${dataset.nomDataset}"></span></p>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Formulaire de lancement -->
+        <div class="lg:col-span-1">
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="p-5 border-b border-slate-100 bg-slate-50/50">
+                    <h2 class="font-semibold text-slate-800 flex items-center">
+                        <i class="fas fa-cogs text-blue-500 mr-2"></i> Hyperparamètres
+                    </h2>
+                </div>
+                <div class="p-5">
+                    <form th:action="@{/admin/datasets/{id}/train(id=${dataset.id})}" method="post" class="space-y-4">
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-1">Nombre d'Epochs</label>
+                            <input type="number" name="epochs" value="5" min="1" max="100" class="w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm">
+                            <p class="text-xs text-slate-500 mt-1">Nombre de passages complets sur les données.</p>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-1">Learning Rate (Taux d'apprentissage)</label>
+                            <input type="number" step="0.0001" name="lr" value="0.001" min="0.0001" max="1.0" class="w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm">
+                            <p class="text-xs text-slate-500 mt-1">Vitesse d'adaptation du modèle.</p>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-1">Batch Size</label>
+                            <select name="batchSize" class="w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm">
+                                <option value="8">8</option>
+                                <option value="16">16</option>
+                                <option value="32" selected>32</option>
+                                <option value="64">64</option>
+                            </select>
+                        </div>
+
+                        <div class="pt-4 border-t border-slate-100">
+                            <button type="submit" class="w-full flex justify-center items-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
+                                <i class="fas fa-play mr-2"></i> Lancer l'Entraînement
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Historique des entraînements -->
+        <div class="lg:col-span-2">
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+                    <h2 class="font-semibold text-slate-800 flex items-center">
+                        <i class="fas fa-history text-indigo-500 mr-2"></i> Historique des entraînements
+                    </h2>
+                    <span class="text-xs font-medium bg-slate-100 text-slate-600 px-2 py-1 rounded-full" th:text="${historique.size()} + ' runs'"></span>
+                </div>
+                
+                <div th:if="${historique.isEmpty()}" class="p-10 text-center">
+                    <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-slate-100 text-slate-400 mb-3">
+                        <i class="fas fa-robot text-xl"></i>
+                    </div>
+                    <h3 class="text-sm font-medium text-slate-900">Aucun entraînement</h3>
+                    <p class="text-sm text-slate-500 mt-1">Configurez les paramètres à gauche pour lancer votre premier modèle.</p>
+                </div>
+
+                <div th:unless="${historique.isEmpty()}" class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-slate-200">
+                        <thead class="bg-slate-50">
+                            <tr>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Date & Admin</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Paramètres</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Statut</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Scores</th>
+                                <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase tracking-wider">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-slate-100">
+                            <tr th:each="run : ${historique}" class="hover:bg-slate-50 transition-colors">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm font-medium text-slate-900" th:text="${#temporals.format(run.dateDebut, 'dd/MM/yyyy HH:mm')}"></div>
+                                    <div class="text-xs text-slate-500" th:text="${run.administrateur.prenom} + ' ' + ${run.administrateur.nom}"></div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-xs text-slate-600 font-mono bg-slate-100 px-2 py-1 rounded inline-block" th:text="${run.hyperparametres}"></div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span th:if="${run.statut == 'EN_COURS'}" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                        <i class="fas fa-spinner fa-spin mr-1.5"></i> En cours
+                                    </span>
+                                    <span th:if="${run.statut == 'TERMINE'}" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                        <i class="fas fa-check mr-1.5"></i> Terminé
+                                    </span>
+                                    <span th:if="${run.statut == 'ERREUR'}" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                        <i class="fas fa-times mr-1.5"></i> Erreur
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div th:if="${run.accuracy != null}">
+                                        <div class="text-sm text-slate-900"><span class="font-semibold">Acc:</span> <span th:text="${#numbers.formatDecimal(run.accuracy * 100, 1, 2)} + '%'"></span></div>
+                                        <div class="text-xs text-slate-500"><span class="font-semibold">F1:</span> <span th:text="${#numbers.formatDecimal(run.f1Score * 100, 1, 2)} + '%'"></span></div>
+                                    </div>
+                                    <div th:if="${run.accuracy == null}" class="text-xs text-slate-400 italic">En attente...</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                    <button type="button" th:attr="onclick=|showLogs('logsModal-${run.id}')|" class="text-blue-600 hover:text-blue-900 bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded transition-colors">
+                                        <i class="fas fa-terminal mr-1"></i> Logs
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</main>
+
+<!-- Modals pour les logs -->
+<div th:each="run : ${historique}" th:id="'logsModal-' + ${run.id}" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-xl shadow-xl w-full max-w-3xl overflow-hidden flex flex-col max-h-[80vh]">
+        <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+            <h3 class="text-lg font-semibold text-slate-800">
+                <i class="fas fa-terminal text-slate-400 mr-2"></i> Console Python (Run #<span th:text="${run.id}"></span>)
+            </h3>
+            <button type="button" th:attr="onclick=|hideLogs('logsModal-${run.id}')|" class="text-slate-400 hover:text-slate-600 transition-colors">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+        </div>
+        <div class="p-0 overflow-y-auto bg-slate-900 flex-grow">
+            <pre class="p-6 text-sm text-green-400 font-mono whitespace-pre-wrap leading-relaxed" th:text="${run.logsConsole} ?: 'Aucun log disponible.'"></pre>
+        </div>
+        <div th:if="${run.confusionMatrix != null}" class="p-6 border-t border-slate-100 bg-white">
+            <h4 class="text-sm font-semibold text-slate-700 mb-2">Matrice de confusion :</h4>
+            <div class="bg-slate-50 p-3 rounded border border-slate-200 font-mono text-sm text-slate-700" th:text="${run.confusionMatrix}"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function showLogs(modalId) {
+        document.getElementById(modalId).classList.remove('hidden');
+        document.body.style.overflow = 'hidden'; // Prevent scrolling
+    }
+    
+    function hideLogs(modalId) {
+        document.getElementById(modalId).classList.add('hidden');
+        document.body.style.overflow = 'auto'; // Restore scrolling
+    }
+</script>
+
+</body>
+</html>
