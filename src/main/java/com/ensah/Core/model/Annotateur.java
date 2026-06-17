@@ -23,4 +23,3 @@ public class Annotateur extends Utilisateur {
     private List<Annotation> annotations = new ArrayList<>();
 
 }
-

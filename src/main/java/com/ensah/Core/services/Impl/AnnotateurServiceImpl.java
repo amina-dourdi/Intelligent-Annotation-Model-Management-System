@@ -22,6 +22,7 @@ public class AnnotateurServiceImpl implements IAnnotateurService {
     private final EmailService emailService;
     private final ITacheRepository tacheRepository;
     private final IAnnotationRepository annotationRepository;
+    private final com.ensah.Core.mappers.EntityMapper entityMapper;
 
     public AnnotateurServiceImpl(IAnnotateurRepository annotateurRepository,
                                  IUtilisateurRepository utilisateurRepository,
@@ -29,7 +30,8 @@ public class AnnotateurServiceImpl implements IAnnotateurService {
                                  PasswordEncoder passwordEncoder,
                                  EmailService emailService,
                                  ITacheRepository tacheRepository,
-                                 IAnnotationRepository annotationRepository) {
+                                 IAnnotationRepository annotationRepository,
+                                 com.ensah.Core.mappers.EntityMapper entityMapper) {
         this.annotateurRepository = annotateurRepository;
         this.utilisateurRepository = utilisateurRepository;
         this.roleRepository = roleRepository;
@@ -37,6 +39,14 @@ public class AnnotateurServiceImpl implements IAnnotateurService {
         this.emailService = emailService;
         this.tacheRepository=tacheRepository;
         this.annotationRepository=annotationRepository;
+        this.entityMapper = entityMapper;
+    }
+
+    @Override
+    public List<com.ensah.Core.dtos.AnnotateurDTO> listerAnnotateursDTOActifs() {
+        return annotateurRepository.findByActifTrue().stream()
+                .map(entityMapper::toDTO)
+                .toList();
     }
 
     @Override
@@ -45,7 +55,7 @@ public class AnnotateurServiceImpl implements IAnnotateurService {
     }
 
     @Override
-    public Annotateur creerAnnotateur(String nom, String prenom, String login, String email) {
+    public com.ensah.Core.dtos.AnnotateurDTO creerAnnotateur(String nom, String prenom, String login, String email) {
         if (utilisateurRepository.existsByLogin(login)) {
             throw new RuntimeException("Login déjà utilisé : " + login);
         }
@@ -72,14 +82,12 @@ public class AnnotateurServiceImpl implements IAnnotateurService {
 
         String nomComplet = prenom + " " + nom;
 
-        // Envoi asynchrone (ne bloque pas, ne rollback pas si échec)
         try {
             emailService.envoyerMotDePasse(email, nomComplet, rawPassword, token);
         } catch (Exception e) {
             System.err.println("⚠️ Erreur lors du déclenchement de l'envoi d'email : " + e.getMessage());
         }
 
-        // 🔑 LOG DE SECOURS : si l'email échoue, le mot de passe est visible dans la console
         System.out.println("========================================");
         System.out.println("🔐 NOUVEL ANNOTATEUR CRÉÉ");
         System.out.println("   Login : " + login);
@@ -88,11 +96,11 @@ public class AnnotateurServiceImpl implements IAnnotateurService {
         System.out.println("   Lien first-login : http://localhost:8080/first-login?token=" + token);
         System.out.println("========================================");
 
-        return a;
+        return entityMapper.toDTO(a);
     }
 
     @Override
-    public Annotateur modifierAnnotateur(Long id, String nom, String prenom, String login, String email) {
+    public com.ensah.Core.dtos.AnnotateurDTO modifierAnnotateur(Long id, String nom, String prenom, String login, String email) {
         Annotateur a = annotateurRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Annotateur introuvable"));
 
@@ -105,7 +113,8 @@ public class AnnotateurServiceImpl implements IAnnotateurService {
         a.setLogin(login);
         a.setEmail(email);
 
-        return annotateurRepository.save(a);
+        Annotateur saved = annotateurRepository.save(a);
+        return entityMapper.toDTO(saved);
     }
 
     @Override
@@ -114,6 +123,11 @@ public class AnnotateurServiceImpl implements IAnnotateurService {
                 .orElseThrow(() -> new RuntimeException("Annotateur introuvable"));
         a.setActif(false);
         annotateurRepository.save(a);
+    }
+
+    @Override
+    public com.ensah.Core.dtos.AnnotateurDTO getAnnotateurDTOById(Long id) {
+        return entityMapper.toDTO(getAnnotateurById(id));
     }
 
     @Override
@@ -202,6 +216,11 @@ public class AnnotateurServiceImpl implements IAnnotateurService {
     public Annotateur getAnnotateurByFirstLoginToken(String token) {
         return annotateurRepository.findByFirstLoginToken(token)
                 .orElseThrow(() -> new RuntimeException("Lien invalide ou expiré"));
+    }
+
+    @Override
+    public com.ensah.Core.dtos.AnnotateurDTO getAnnotateurDTOByFirstLoginToken(String token) {
+        return entityMapper.toDTO(getAnnotateurByFirstLoginToken(token));
     }
 
     @Override

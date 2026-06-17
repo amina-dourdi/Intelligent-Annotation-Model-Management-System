@@ -4,6 +4,7 @@ import com.ensah.Core.model.Annotateur;
 import com.ensah.Core.model.CoupleTexte;
 import com.ensah.Core.model.Dataset;
 import com.ensah.Core.model.Tache;
+import com.ensah.Core.dtos.TacheDTO;
 import com.ensah.Core.dao.IAnnotateurRepository;
 import com.ensah.Core.dao.ICoupleTexteRepository;
 import com.ensah.Core.dao.IDatasetRepository;
@@ -23,15 +24,18 @@ public class AffectationServiceImpl implements IAffectationService {
     private final IAnnotateurRepository annotateurRepository;
     private final ITacheRepository tacheRepository;
     private final ICoupleTexteRepository coupleTexteRepository;
+    private final com.ensah.Core.mappers.EntityMapper entityMapper;
 
     public AffectationServiceImpl(IDatasetRepository datasetRepository,
                                   IAnnotateurRepository annotateurRepository,
                                   ITacheRepository tacheRepository,
-                                  ICoupleTexteRepository coupleTexteRepository) {
+                                  ICoupleTexteRepository coupleTexteRepository,
+                                  com.ensah.Core.mappers.EntityMapper entityMapper) {
         this.datasetRepository = datasetRepository;
         this.annotateurRepository = annotateurRepository;
         this.tacheRepository = tacheRepository;
         this.coupleTexteRepository = coupleTexteRepository;
+        this.entityMapper = entityMapper;
     }
 
     @Override
@@ -105,8 +109,22 @@ public class AffectationServiceImpl implements IAffectationService {
     }
 
     @Override
+    public List<TacheDTO> listerTachesDTOParAnnotateur(Long annotateurId) {
+        return tacheRepository.findByAnnotateurId(annotateurId).stream()
+                .map(entityMapper::toDTO)
+                .toList();
+    }
+
+    @Override
     public List<Tache> listerTachesParAnnotateur(Long annotateurId) {
         return tacheRepository.findByAnnotateurId(annotateurId);
+    }
+
+    @Override
+    public List<TacheDTO> listerTachesDTOParDataset(Long datasetId) {
+        return tacheRepository.findByDatasetId(datasetId).stream()
+                .map(entityMapper::toDTO)
+                .toList();
     }
 
     @Override

@@ -1,8 +1,6 @@
 package com.ensah.Core.services.Impl;
 
-
 import com.ensah.Core.model.ClassePossible;
-
 import com.ensah.Core.dao.IDatasetRepository;
 import com.ensah.Core.dao.ICoupleTexteRepository;
 import com.ensah.Core.dao.IClassePossibleRepository;
@@ -10,6 +8,8 @@ import com.ensah.Core.dao.IAnnotationRepository;
 import com.ensah.Core.services.ICsvHelper;
 import com.ensah.Core.model.CoupleTexte;
 import com.ensah.Core.model.Dataset;
+import com.ensah.Core.dtos.DatasetDTO;
+import com.ensah.Core.mappers.EntityMapper;
 import com.ensah.Core.services.IDatasetService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,6 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -27,21 +28,24 @@ public class DatasetServiceImpl implements IDatasetService {
     private final IClassePossibleRepository classePossibleRepository;
     private final IAnnotationRepository annotationRepository;
     private final ICsvHelper csvHelper;
+    private final EntityMapper entityMapper;
 
     public DatasetServiceImpl(IDatasetRepository datasetRepository,
                               ICoupleTexteRepository coupleTexteRepository,
                               IClassePossibleRepository classePossibleRepository,
                               IAnnotationRepository annotationRepository,
-                              ICsvHelper csvHelper) {
+                              ICsvHelper csvHelper,
+                              EntityMapper entityMapper) {
         this.datasetRepository = datasetRepository;
         this.coupleTexteRepository = coupleTexteRepository;
         this.classePossibleRepository = classePossibleRepository;
         this.annotationRepository = annotationRepository;
         this.csvHelper = csvHelper;
+        this.entityMapper = entityMapper;
     }
 
     @Override
-    public Dataset creerDataset(String nom, String description, List<String> classes, MultipartFile fichier) throws IOException {
+    public DatasetDTO creerDataset(String nom, String description, List<String> classes, MultipartFile fichier) throws IOException {
         Dataset ds = new Dataset();
         ds.setNomDataset(nom);
         ds.setDescription(description);
@@ -63,16 +67,24 @@ public class DatasetServiceImpl implements IDatasetService {
             coupleTexteRepository.save(ct);
         }
 
-        return ds;
+        return entityMapper.toDTO(ds);
     }
 
     @Override
-    public List<Dataset> listerDatasets() {
-        return datasetRepository.findAll();
+    public List<DatasetDTO> listerDatasets() {
+        return datasetRepository.findAll().stream()
+                .map(entityMapper::toDTO)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public Dataset getDatasetById(Long id) {
+    public DatasetDTO getDatasetDTOById(Long id) {
+        Dataset dataset = getDatasetEntityById(id);
+        return entityMapper.toDTO(dataset);
+    }
+
+    @Override
+    public Dataset getDatasetEntityById(Long id) {
         return datasetRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Dataset introuvable"));
     }

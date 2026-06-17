@@ -4,7 +4,6 @@ package com.ensah.Core.model;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.HashSet;
@@ -27,6 +26,7 @@ public class Role {
 
     @OneToMany(mappedBy = "role")
     private Set<Utilisateur> utilisateurs = new HashSet<>();
+
     public Role() {}
 
     public Role(String nomRole) {

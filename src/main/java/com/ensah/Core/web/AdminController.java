@@ -24,12 +24,12 @@ public class AdminController {
 
     @GetMapping("/dashboard")
     public String dashboard(Model model) {
-        List<Dataset> datasets = datasetService.listerDatasets();
+        List<com.ensah.Core.dtos.DatasetDTO> datasets = datasetService.listerDatasets();
 
         // Statistiques
         int totalDatasets = datasets.size();
-        int totalAnnotateurs = annotateurService.listerAnnotateursActifs().size();
-        int totalCouples = datasets.stream().mapToInt(ds -> ds.getCouples().size()).sum();
+        int totalAnnotateurs = annotateurService.listerAnnotateursDTOActifs().size();
+        int totalCouples = datasets.stream().mapToInt(com.ensah.Core.dtos.DatasetDTO::getNumberOfCouples).sum();
 
         model.addAttribute("datasets", datasets);
         model.addAttribute("totalDatasets", totalDatasets);

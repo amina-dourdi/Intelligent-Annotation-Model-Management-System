@@ -1,133 +1,176 @@
-<!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
   <meta charset="UTF-8">
-  <title>Détection Spammeurs</title>
+  <title>Détection Spammeurs - Administration</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style> body { font-family: 'Inter', sans-serif; } </style>
 </head>
-<body class="bg-gradient-to-br from-blue-50 via-white to-indigo-50 text-slate-800 font-sans min-h-screen">
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
 
-<nav class="bg-white/80 backdrop-blur border-b border-slate-100 px-8 py-4 flex justify-between items-center sticky top-0 z-10">
-  <div class="flex items-center gap-3">
-    <i class="fas fa-tags text-slate-700 text-xl"></i>
-    <span class="font-bold text-lg text-slate-900">NLP Annot</span>
-  </div>
-  <div class="flex items-center gap-6">
-    <a th:href="@{/admin/dashboard}" class="text-slate-500 hover:text-slate-900 transition">Dashboard</a>
-    <a th:href="@{/admin/datasets}" class="text-slate-900 font-medium">Datasets</a>
-    <a th:href="@{/admin/annotateurs}" class="text-slate-500 hover:text-slate-900 transition">Annotateurs</a>
-    <form th:action="@{/logout}" method="post" class="inline">
-      <button type="submit" class="text-slate-400 hover:text-red-500 transition">
-        <i class="fas fa-sign-out-alt"></i>
-      </button>
-    </form>
+<!-- Navigation -->
+<nav class="bg-white border-b border-slate-200 sticky top-0 z-10">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex justify-between h-16">
+      <div class="flex items-center">
+        <span class="font-bold text-lg text-slate-900 tracking-tight flex items-center">
+          <i class="fas fa-layer-group text-blue-600 mr-2"></i> NLP Annot Admin
+        </span>
+      </div>
+      <div class="flex items-center space-x-6 text-sm">
+        <a th:href="@{/admin/dashboard}" class="text-slate-500 hover:text-slate-900 transition-colors">Tableau de bord</a>
+        <a th:href="@{/admin/datasets}" class="text-blue-600 font-medium">Datasets</a>
+        <a th:href="@{/admin/annotateurs}" class="text-slate-500 hover:text-slate-900 transition-colors">Utilisateurs</a>
+        <div class="w-px h-4 bg-slate-300"></div>
+        <form th:action="@{/logout}" method="post" class="m-0">
+          <button type="submit" class="text-slate-400 hover:text-red-600 transition-colors" title="Déconnexion">
+            <i class="fas fa-sign-out-alt"></i>
+          </button>
+        </form>
+      </div>
+    </div>
   </div>
 </nav>
 
-<div class="p-8 max-w-5xl mx-auto">
+<main class="flex-grow max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
 
   <!-- Messages -->
-  <div th:if="${error}" class="mb-4 p-4 rounded-lg bg-red-50 border border-red-200 text-red-700 flex items-center">
-    <i class="fas fa-exclamation-circle mr-3"></i>
-    <span th:text="${error}"></span>
+  <div th:if="${error}" class="mb-6 p-4 rounded-md bg-red-50 border border-red-200 flex items-center shadow-sm">
+    <i class="fas fa-exclamation-circle text-red-500 mr-3"></i>
+    <span class="text-sm text-red-800 font-medium" th:text="${error}"></span>
   </div>
-  <div th:if="${success}" class="mb-4 p-4 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-700 flex items-center">
-    <i class="fas fa-check-circle mr-3"></i>
-    <span th:text="${success}"></span>
+  <div th:if="${success}" class="mb-6 p-4 rounded-md bg-emerald-50 border border-emerald-200 flex items-center shadow-sm">
+    <i class="fas fa-check-circle text-emerald-500 mr-3"></i>
+    <span class="text-sm text-emerald-800 font-medium" th:text="${success}"></span>
   </div>
-  <div th:if="${warning}" class="mb-4 p-4 rounded-lg bg-amber-50 border border-amber-200 text-amber-700 flex items-center">
-    <i class="fas fa-exclamation-triangle mr-3"></i>
-    <span th:text="${warning}"></span>
+  <div th:if="${warning}" class="mb-6 p-4 rounded-md bg-amber-50 border border-amber-200 flex items-center shadow-sm">
+    <i class="fas fa-exclamation-triangle text-amber-500 mr-3"></i>
+    <span class="text-sm text-amber-800 font-medium" th:text="${warning}"></span>
   </div>
 
-  <div class="mb-6">
-    <a th:href="@{/admin/datasets}" class="text-slate-500 hover:text-slate-900 text-sm transition">
-      <i class="fas fa-arrow-left mr-1"></i>Retour
-    </a>
-    <h2 class="text-2xl font-bold text-slate-800 mt-2">
-      Détection des spammeurs — <span th:text="${dataset.nomDataset}" class="text-slate-700">NLI-FR</span>
-    </h2>
-    <p class="text-slate-500 text-sm mt-1">
-      Basé sur le Kappa individuel : accord de l'annotateur vs consensus des autres.
-      Kappa &lt; 0 = spammeur (pire que le hasard). Kappa &lt; 0.20 = suspect.
-    </p>
+  <div class="mb-6 flex flex-col md:flex-row md:items-end justify-between gap-4">
+    <div>
+      <a th:href="@{/admin/datasets}" class="inline-flex items-center text-sm font-medium text-slate-500 hover:text-slate-900 transition-colors mb-2">
+        <i class="fas fa-arrow-left mr-2"></i> Retour aux datasets
+      </a>
+      <h2 class="text-2xl font-bold text-slate-900 tracking-tight">
+        Détection des spammeurs
+      </h2>
+      <p class="text-sm text-slate-500 mt-1">
+        Dataset : <span th:text="${dataset.nomDataset}" class="font-medium text-slate-700">NLI-FR</span>
+      </p>
+    </div>
+    
+    <div class="bg-blue-50 text-blue-800 text-xs p-3 rounded-md border border-blue-100 max-w-sm">
+      <p class="font-medium mb-1"><i class="fas fa-info-circle mr-1"></i> Critères d'évaluation :</p>
+      <ul class="list-disc pl-5 space-y-0.5">
+        <li><span class="font-semibold">Spammeur (Rouge)</span> : Kappa &lt; 0 (pire que le hasard)</li>
+        <li><span class="font-semibold">Suspect (Orange)</span> : Kappa &lt; 0.20</li>
+      </ul>
+    </div>
   </div>
 
   <!-- Résumé -->
-  <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-    <div class="bg-white rounded-xl shadow-sm border border-slate-100 p-4">
-      <div class="text-sm text-slate-500">Annotateurs analysés</div>
-      <div class="text-2xl font-bold text-slate-800" th:text="${analyses.size()}">0</div>
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+    <div class="bg-white rounded-lg p-5 border border-slate-200 shadow-sm flex flex-col">
+      <div class="flex justify-between items-start mb-2">
+        <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Analysés</span>
+        <i class="fas fa-users text-slate-400"></i>
+      </div>
+      <span class="text-3xl font-bold text-slate-900" th:text="${analyses.size()}">0</span>
     </div>
-    <div class="bg-white rounded-xl shadow-sm border border-slate-100 p-4">
-      <div class="text-sm text-slate-500">Spammeurs détectés</div>
-      <div class="text-2xl font-bold text-red-600" th:text="${spammeurCount}">0</div>
-    </div>  <!-- ← </div> AJOUTÉ ICI -->
-    <div class="bg-white rounded-xl shadow-sm border border-slate-100 p-4">
-      <div class="text-sm text-slate-500">Suspects</div>
-      <div class="text-2xl font-bold text-amber-500" th:text="${suspectCount}">0</div>
+
+    <div class="bg-white rounded-lg p-5 border border-red-200 shadow-sm flex flex-col relative overflow-hidden">
+      <div class="absolute inset-y-0 left-0 w-1 bg-red-500"></div>
+      <div class="flex justify-between items-start mb-2 pl-2">
+        <span class="text-xs font-semibold text-red-700 uppercase tracking-wider">Spammeurs</span>
+        <i class="fas fa-user-slash text-red-400"></i>
+      </div>
+      <span class="text-3xl font-bold text-red-600 pl-2" th:text="${spammeurCount}">0</span>
+    </div>
+
+    <div class="bg-white rounded-lg p-5 border border-amber-200 shadow-sm flex flex-col relative overflow-hidden">
+      <div class="absolute inset-y-0 left-0 w-1 bg-amber-500"></div>
+      <div class="flex justify-between items-start mb-2 pl-2">
+        <span class="text-xs font-semibold text-amber-700 uppercase tracking-wider">Suspects</span>
+        <i class="fas fa-user-clock text-amber-400"></i>
+      </div>
+      <span class="text-3xl font-bold text-amber-600 pl-2" th:text="${suspectCount}">0</span>
     </div>
   </div>
 
   <!-- Tableau -->
-  <div class="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
-    <table class="w-full text-left text-sm">
-      <thead class="bg-slate-800 text-white text-xs uppercase">
-      <tr>
-        <th class="px-6 py-4 font-semibold">Annotateur</th>
-        <th class="px-6 py-4 font-medium text-center">Kappa</th>
-        <th class="px-6 py-4 font-medium text-right">Statut</th>
-      </tr>
-      </thead>
-      <tbody class="divide-y divide-slate-100">
-      <tr th:each="a : ${analyses}"
-          th:class="${a.estSpammeur} ? 'bg-red-50' : (${a.estSuspect} ? 'bg-amber-50' : 'hover:bg-slate-50')">
-        <td class="px-6 py-4">
-          <div class="font-medium text-slate-700" th:text="${a.nom}">Kamali</div>
-          <div class="text-xs text-slate-400" th:text="${a.raison}">Kappa = -0.15</div>
-        </td>
-        <td class="px-6 py-4 text-center">
-          <span th:if="${a.estSpammeur}" class="text-lg font-bold text-red-600" th:text="${a.kappa}">-0.15</span>
-          <span th:if="${a.estSuspect}" class="text-lg font-bold text-amber-600" th:text="${a.kappa}">0.10</span>
-          <span th:unless="${a.estSpammeur or a.estSuspect}" class="text-lg font-bold text-emerald-600" th:text="${a.kappa}">0.65</span>
-        </td>
-        <td class="px-6 py-4 text-right">
-          <span th:if="${a.estSpammeur}"
-                class="px-3 py-1 bg-red-100 text-red-700 rounded-full text-xs font-semibold">
-            <i class="fas fa-exclamation-triangle mr-1"></i>SPAMMEUR
-          </span>
-          <span th:if="${a.estSuspect}"
-                class="px-3 py-1 bg-amber-100 text-amber-700 rounded-full text-xs font-semibold">
-            <i class="fas fa-question-circle mr-1"></i>SUSPECT
-          </span>
-          <span th:unless="${a.estSpammeur or a.estSuspect}"
-                class="px-3 py-1 bg-emerald-100 text-emerald-700 rounded-full text-xs font-semibold">
-            <i class="fas fa-check mr-1"></i>NORMAL
-          </span>
+  <div class="bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="w-full text-left text-sm whitespace-nowrap">
+        <thead class="bg-slate-50 border-b border-slate-200 text-slate-500">
+        <tr>
+          <th scope="col" class="px-6 py-3 font-semibold">Annotateur évalué</th>
+          <th scope="col" class="px-6 py-3 font-semibold text-center">Score Kappa</th>
+          <th scope="col" class="px-6 py-3 font-semibold text-right">Analyse & Actions</th>
+        </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100 bg-white">
+        <tr th:each="a : ${analyses}"
+            th:class="${a.estSpammeur} ? 'bg-red-50/30' : (${a.estSuspect} ? 'bg-amber-50/30' : 'hover:bg-slate-50') + ' transition-colors'">
+          <td class="px-6 py-4">
+            <div class="flex items-center">
+              <div th:class="${a.estSpammeur} ? 'h-8 w-8 rounded-full bg-red-100 text-red-600 flex items-center justify-center font-bold text-xs mr-3 border border-red-200' : (${a.estSuspect} ? 'h-8 w-8 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center font-bold text-xs mr-3 border border-amber-200' : 'h-8 w-8 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center font-bold text-xs mr-3 border border-slate-200')">
+                <i th:class="${a.estSpammeur} ? 'fas fa-exclamation' : (${a.estSuspect} ? 'fas fa-question' : 'fas fa-user')"></i>
+              </div>
+              <div>
+                <p class="text-sm font-medium text-slate-900" th:text="${a.nom}">Kamali</p>
+                <p class="text-xs text-slate-500" th:text="${a.raison}">Détails</p>
+              </div>
+            </div>
+          </td>
+          <td class="px-6 py-4 text-center">
+            <span th:if="${a.estSpammeur}" class="text-lg font-bold text-red-600" th:text="${a.kappa}">-0.15</span>
+            <span th:if="${a.estSuspect}" class="text-lg font-bold text-amber-500" th:text="${a.kappa}">0.10</span>
+            <span th:unless="${a.estSpammeur or a.estSuspect}" class="text-lg font-bold text-emerald-600" th:text="${a.kappa}">0.65</span>
+          </td>
+          <td class="px-6 py-4 text-right">
+            <span th:if="${a.estSpammeur}"
+                  class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800 border border-red-200">
+              <i class="fas fa-exclamation-triangle mr-1.5"></i> Spammeur
+            </span>
+            <span th:if="${a.estSuspect}"
+                  class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-amber-100 text-amber-800 border border-amber-200">
+              <i class="fas fa-question-circle mr-1.5"></i> Suspect
+            </span>
+            <span th:unless="${a.estSpammeur or a.estSuspect}"
+                  class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-emerald-100 text-emerald-800 border border-emerald-200">
+              <i class="fas fa-check mr-1.5"></i> Valide
+            </span>
 
-          <!-- Bouton Supprimer pour spammeurs -->
-          <form th:if="${a.estSpammeur}"
-                th:action="@{/admin/datasets/{dsId}/spammeurs/{annId}/supprimer(dsId=${dataset.id}, annId=${a.annotateurId})}"
-                method="post"
-                class="inline ml-2">
-            <button type="submit"
-                    class="inline-flex items-center px-2 py-1 bg-red-600 text-white rounded text-xs hover:bg-red-700 transition-colors"
-                    onclick="return confirm('Supprimer ce spammeur ?\n\n- Désaffectation du dataset\n- Rééquilibrage automatique\n- Annotations conservées\n- Compte désactivé')">
-              <i class="fas fa-trash mr-1"></i>Supprimer
-            </button>
-          </form>
-        </td>
-      </tr>
-      <tr th:if="${#lists.isEmpty(analyses)}">
-        <td colspan="3" class="px-6 py-8 text-center text-slate-400">
-          Aucune donnée d'annotation pour l'analyse
-        </td>
-      </tr>
-      </tbody>
-    </table>
+            <!-- Bouton Supprimer pour spammeurs -->
+            <form th:if="${a.estSpammeur}"
+                  th:action="@{/admin/datasets/{dsId}/spammeurs/{annId}/supprimer(dsId=${dataset.id}, annId=${a.annotateurId})}"
+                  method="post"
+                  class="inline-block ml-3">
+              <button type="submit"
+                      class="inline-flex items-center px-2.5 py-1 border border-transparent shadow-sm text-xs font-medium rounded text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors"
+                      onclick="return confirm('Attention ! Supprimer ce compte entraînera :\n\n- Sa désaffectation du dataset\n- Un rééquilibrage automatique des tâches\n- La désactivation du compte\n\nÊtes-vous sûr ?')">
+                <i class="fas fa-trash-alt mr-1.5"></i> Révoquer l'accès
+              </button>
+            </form>
+          </td>
+        </tr>
+        <tr th:if="${#lists.isEmpty(analyses)}">
+          <td colspan="3" class="px-6 py-8 text-center text-sm text-slate-500">
+            Aucune donnée d'annotation disponible pour effectuer l'analyse.
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
-</div>
+</main>
+
+<footer class="mt-auto bg-white border-t border-slate-200 py-6 text-center text-xs text-slate-500">
+  &copy; 2026 NLP Annotation. Interface d'administration.
+</footer>
 
 </body>
 </html>
