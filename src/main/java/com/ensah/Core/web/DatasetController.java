@@ -6,6 +6,7 @@ import com.ensah.Core.model.Annotateur;
 import com.ensah.Core.model.CoupleTexte;
 import com.ensah.Core.model.Dataset;
 import com.ensah.Core.model.Tache;
+import com.ensah.Core.model.Annotation;
 import com.ensah.Core.services.*;
 
 import org.springframework.data.domain.Page;
@@ -31,6 +32,9 @@ public class DatasetController {
     private final ICoupleTexteRepository coupleTexteRepository;
     private final ITacheRepository tacheRepository;
     private final ISpamDetectionService spamDetectionService;
+    private final IMachineLearningService machineLearningService;
+    private final com.ensah.Core.dao.IAnnotateurRepository annotateurRepository;
+    private final com.ensah.Core.dao.IAnnotationRepository annotationRepository;
     private final com.ensah.Core.mappers.EntityMapper entityMapper;
 
     public DatasetController(IDatasetService datasetService,
@@ -40,6 +44,9 @@ public class DatasetController {
                              ITacheRepository tacheRepository,
                              ISpamDetectionService spamDetectionService,
                              IKappaService kappaService,
+                             IMachineLearningService machineLearningService,
+                             com.ensah.Core.dao.IAnnotateurRepository annotateurRepository,
+                             com.ensah.Core.dao.IAnnotationRepository annotationRepository,
                              com.ensah.Core.mappers.EntityMapper entityMapper) {
         this.datasetService = datasetService;
         this.annotateurService = annotateurService;
@@ -48,6 +55,9 @@ public class DatasetController {
         this.tacheRepository = tacheRepository;
         this.spamDetectionService = spamDetectionService;
         this.kappaService = kappaService;
+        this.machineLearningService = machineLearningService;
+        this.annotateurRepository = annotateurRepository;
+        this.annotationRepository = annotationRepository;
         this.entityMapper = entityMapper;
     }
 
@@ -93,7 +103,7 @@ public class DatasetController {
     public String details(@PathVariable Long id,
                           @RequestParam(defaultValue = "0") int page,
                           Model model) {
-        com.ensah.Core.dtos.DatasetDTO ds = datasetService.getDatasetDTOById(id);
+        Dataset ds = datasetService.getDatasetEntityById(id);
         int avancement = datasetService.calculerPourcentageAvancement(id);
 
         // Pagination : 100 couples par page
@@ -246,5 +256,69 @@ public class DatasetController {
         }
 
         return "redirect:/admin/datasets/" + datasetId + "/spammeurs";
+    }
+
+    // ==================== UC3.X : Auto-Annotation (ML Python) ====================
+    @PostMapping("/{id}/auto-annotate")
+    public String autoAnnotate(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        try {
+            Dataset dataset = datasetService  .getDatasetEntityById(id);
+            if (dataset == null) {
+                redirectAttributes.addFlashAttribute("error", "Dataset introuvable.");
+                return "redirect:/admin/datasets";
+            }
+
+            // 1. Trouver ou créer le Bot ML
+            Annotateur botML = annotateurRepository.findByLogin("bot_ml").orElseGet(() -> {
+                Annotateur bot = new Annotateur();
+                bot.setNom("Bot");
+                bot.setPrenom("Python ML");
+                bot.setLogin("bot_ml");
+                bot.setEmail("bot@nlp.platform");
+                bot.setActif(true);
+                // On met un mot de passe bidon
+                bot.setPassword("BOT_NO_LOGIN");
+                return annotateurRepository.save(bot);
+            });
+
+            // 2. Récupérer quelques textes (ex: les 10 premiers pour éviter que ça ne dure trop longtemps)
+            List<CoupleTexte> couples = coupleTexteRepository.findByDatasetId(id);
+            int count = 0;
+            
+            // Mapper la liste de ClassePossible en une chaine de caracteres
+            String classesStr = dataset.getClassesPossibles().stream()
+                    .map(com.ensah.Core.model.ClassePossible::getTexteClasse)
+                    .reduce((a, b) -> a + "," + b)
+                    .orElse("");
+
+            for (CoupleTexte ct : couples) {
+                // Ne pas dépasser 10 textes pour la démo
+                if (count >= 10) break;
+                
+                // Vérifier si le bot a déjà annoté ce texte
+                boolean dejaAnnote = annotationRepository.findByCoupleTexteId(ct.getId()).stream()
+                        .anyMatch(a -> a.getAnnotateur().getId().equals(botML.getId()));
+                
+                if (!dejaAnnote) {
+                    // Appel au script Python via ProcessBuilder
+                    String prediction = machineLearningService.predictClass(ct.getTexte1(), ct.getTexte2(), classesStr);
+                    
+                    // Si la prédiction fait partie des classes valides (ou est inconnue mais retournée par script)
+                    Annotation annotation = new Annotation();
+                    annotation.setAnnotateur(botML);
+                    annotation.setCoupleTexte(ct);
+                    annotation.setClasseChoisie(prediction);
+                    annotationRepository.save(annotation);
+                    count++;
+                }
+            }
+
+            redirectAttributes.addFlashAttribute("success", "Auto-annotation Python terminée ! " + count + " nouvelles prédictions ajoutées.");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            redirectAttributes.addFlashAttribute("error", "Erreur lors de l'auto-annotation : " + e.getMessage());
+        }
+        return "redirect:/admin/datasets/" + id;
     }
 }
