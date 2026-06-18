@@ -50,6 +50,8 @@
                     <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider" th:text="${task.dataset.nomDataset}">Dataset</span>
                     <span class="text-slate-300">&bull;</span>
                     <span class="text-xs text-slate-500">Tâche <span th:text="'#' + ${task.id}">#1</span></span>
+                    <span class="text-slate-300">&bull;</span>
+                    <span class="text-xs font-semibold text-red-500" th:if="${task.dateLimite != null}" th:text="'Échéance : ' + ${task.dateLimite}">Échéance</span>
                 </div>
                 <p class="text-sm text-slate-700" th:text="${task.dataset.description}">Description de la tâche.</p>
             </div>

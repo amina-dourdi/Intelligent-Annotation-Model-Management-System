@@ -55,13 +55,13 @@ public class DataInitializer implements CommandLineRunner {
             roleRepository.save(annotatorRole);
         }
 
-        if (!utilisateurRepository.existsByLogin("admin1")) {
+        if (!utilisateurRepository.existsByLogin("admin")) {
             Administrateur admin = new Administrateur();
-            admin.setNom("Admin1");
-            admin.setPrenom("admin1");
-            admin.setLogin("admin1");
-            admin.setEmail("admin@annota.com");
-            admin.setPassword(passwordEncoder.encode("admin1"));
+            admin.setNom("Admin");
+            admin.setPrenom("admin");
+            admin.setLogin("admin");
+            admin.setEmail("admin_new@annota.com");
+            admin.setPassword(passwordEncoder.encode("admin"));
             admin.setActif(true);
             admin.setPasswordChanged(true);
             admin.setRole(adminRole);

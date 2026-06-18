@@ -16,4 +16,6 @@ public interface ITacheRepository extends JpaRepository<Tache, Long> {
     List<Tache> findByAnnotateurId(Long annotateurId);
 
     List<Tache> findByDatasetId(Long datasetId);
+    
+    List<Tache> findByDateLimite(java.time.LocalDate dateLimite);
 }

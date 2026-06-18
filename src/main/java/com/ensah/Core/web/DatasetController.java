@@ -134,16 +134,27 @@ public class DatasetController {
         model.addAttribute("dataset", ds);
         model.addAttribute("annotateurs", annotateurs);
         model.addAttribute("idsAffectes", idsAffectes);
+        model.addAttribute("minDate", java.time.LocalDate.now().plusDays(1));
         return "admin/dataset-annotateurs";
     }
 
     @PostMapping("/{id}/affecter")
     public String affecter(@PathVariable Long id,
                            @RequestParam(required = false) List<Long> annotateurIds,
-                           @RequestParam LocalDate dateLimite,
+                           @RequestParam String dateLimite,
                            RedirectAttributes redirectAttributes) {
         try {
-            affectationService.affecterAnnotateurs(id, annotateurIds, dateLimite);
+            java.time.LocalDate parsedDate;
+            try {
+                parsedDate = java.time.LocalDate.parse(dateLimite);
+            } catch (Exception e) {
+                throw new IllegalArgumentException("Le format de la date limite est invalide.");
+            }
+            
+            if (!parsedDate.isAfter(java.time.LocalDate.now())) {
+                throw new IllegalArgumentException("La date limite doit être strictement supérieure à aujourd'hui.");
+            }
+            affectationService.affecterAnnotateurs(id, annotateurIds, parsedDate);
             redirectAttributes.addFlashAttribute("success",
                     annotateurIds.size() + " annotateurs affectés avec succès");
         } catch (IllegalArgumentException e) {
