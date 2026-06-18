@@ -64,6 +64,12 @@
          class="inline-flex items-center px-3 py-1.5 border border-slate-300 shadow-sm text-xs font-medium rounded text-slate-700 bg-white hover:bg-slate-50 transition-colors">
         <i class="fas fa-chart-bar mr-1.5"></i> Métriques
       </a>
+      <a th:if="${dataset != null and dataset.id != null}"
+         th:href="@{/admin/export/dataset/{id}(id=${dataset.id})}"
+         class="inline-flex items-center px-3 py-1.5 border border-emerald-300 shadow-sm text-xs font-medium rounded text-emerald-700 bg-white hover:bg-emerald-50 transition-colors">
+        <i class="fas fa-file-export mr-1.5"></i> Exporter
+      </a>
+
       <form th:action="@{/admin/datasets/{id}/auto-annotate(id=${dataset.id})}" method="post" class="m-0 inline-block">
         <button type="submit"
            class="inline-flex items-center px-3 py-1.5 border border-transparent shadow-sm text-xs font-medium rounded text-white bg-indigo-600 hover:bg-indigo-700 transition-colors"
