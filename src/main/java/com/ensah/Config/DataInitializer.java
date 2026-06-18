@@ -22,13 +22,13 @@ public class DataInitializer implements CommandLineRunner {
     private final PasswordEncoder passwordEncoder;
 
     public DataInitializer(IRoleRepository roleRepository,
-                           IUtilisateurRepository utilisateurRepository,
-                           IAnnotateurRepository annotateurRepository,
-                           IDatasetRepository datasetRepository,
-                           IClassePossibleRepository classePossibleRepository,
-                           ICoupleTexteRepository coupleTexteRepository,
-                           ITacheRepository tacheRepository,
-                           PasswordEncoder passwordEncoder) {
+            IUtilisateurRepository utilisateurRepository,
+            IAnnotateurRepository annotateurRepository,
+            IDatasetRepository datasetRepository,
+            IClassePossibleRepository classePossibleRepository,
+            ICoupleTexteRepository coupleTexteRepository,
+            ITacheRepository tacheRepository,
+            PasswordEncoder passwordEncoder) {
         this.roleRepository = roleRepository;
         this.utilisateurRepository = utilisateurRepository;
         this.annotateurRepository = annotateurRepository;
@@ -58,9 +58,9 @@ public class DataInitializer implements CommandLineRunner {
         if (!utilisateurRepository.existsByLogin("admin")) {
             Administrateur admin = new Administrateur();
             admin.setNom("Admin");
-            admin.setPrenom("System");
+            admin.setPrenom("admin");
             admin.setLogin("admin");
-            admin.setEmail("admin@annota.com");
+            admin.setEmail("admin_new@annota.com");
             admin.setPassword(passwordEncoder.encode("admin"));
             admin.setActif(true);
             admin.setPasswordChanged(true);
@@ -72,7 +72,7 @@ public class DataInitializer implements CommandLineRunner {
         if (!utilisateurRepository.existsByLogin("user1")) {
             user1 = new Annotateur();
             user1.setNom("USER1");
-            user1.setPrenom("Annotateur Test");
+            user1.setPrenom("user1");
             user1.setLogin("user1");
             user1.setEmail("user1@annota.com");
             user1.setPassword(passwordEncoder.encode("user1"));
@@ -82,9 +82,9 @@ public class DataInitializer implements CommandLineRunner {
             annotateurRepository.save(user1);
         } else {
             Optional<Annotateur> opt = annotateurRepository.findById(
-                    utilisateurRepository.findByLogin("user1").get().getId()
-            );
-            if (opt.isPresent()) user1 = opt.get();
+                    utilisateurRepository.findByLogin("user1").get().getId());
+            if (opt.isPresent())
+                user1 = opt.get();
         }
 
         if (datasetRepository.count() == 0) {

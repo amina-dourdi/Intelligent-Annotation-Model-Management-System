@@ -50,6 +50,8 @@
                     <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider" th:text="${task.dataset.nomDataset}">Dataset</span>
                     <span class="text-slate-300">&bull;</span>
                     <span class="text-xs text-slate-500">Tâche <span th:text="'#' + ${task.id}">#1</span></span>
+                    <span class="text-slate-300">&bull;</span>
+                    <span class="text-xs font-semibold text-red-500" th:if="${task.dateLimite != null}" th:text="'Échéance : ' + ${task.dateLimite}">Échéance</span>
                 </div>
                 <p class="text-sm text-slate-700" th:text="${task.dataset.description}">Description de la tâche.</p>
             </div>
@@ -80,7 +82,7 @@
         </div>
 
         <!-- Annotation Area -->
-        <div th:if="${couple != null}">
+        <div th:if="${couple != null && !saved}">
             
             <!-- Documents -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
@@ -108,12 +110,12 @@
                 <div class="mb-8">
                     <h3 class="text-sm font-medium text-slate-900 mb-4 text-center">Sélectionnez la relation entre ces textes</h3>
                     <div class="flex flex-wrap justify-center gap-3">
-                        <div th:each="cls : ${classes}" class="relative">
-                            <input type="radio" th:id="${'class_' + cls.id}" name="classeChoisie"
-                                th:value="${cls.texteClasse}"
-                                th:checked="${existingAnnotation != null && existingAnnotation.classeChoisie == cls.texteClasse}"
+                        <div th:each="cls, clsStat : ${classes}" class="relative">
+                            <input type="radio" th:id="${'class_' + clsStat.index}" name="classeChoisie"
+                                th:value="${cls}"
+                                th:checked="${existingAnnotation != null && existingAnnotation.classeChoisie == cls}"
                                 required class="peer sr-only">
-                            <label th:for="${'class_' + cls.id}" th:text="${cls.texteClasse}"
+                            <label th:for="${'class_' + clsStat.index}" th:text="${cls}"
                                 class="inline-flex items-center px-4 py-2 border border-slate-200 rounded-md text-sm font-medium text-slate-700 bg-white cursor-pointer transition-colors peer-checked:bg-blue-50 peer-checked:border-blue-500 peer-checked:text-blue-700 hover:bg-slate-50">
                                 Classe
                             </label>

@@ -15,5 +15,5 @@ public class AnnotationDTO {
     private LocalDateTime dateAnnotation;
     private Long annotateurId;
     private String annotateurNomComplet; // optionnel pour l'affichage
-    private Long coupleTexteId;
+    private CoupleTexteDTO coupleTexte;
 }
