@@ -94,7 +94,8 @@ public class DatasetServiceImpl implements IDatasetService {
         long total = coupleTexteRepository.countByDatasetId(datasetId);
         if (total == 0) return 0;
         long annotes = annotationRepository.countByCoupleTexteDatasetId(datasetId);
-        return (int) ((annotes * 100) / total);
+        int percent = (int) ((annotes * 100) / total);
+        return Math.min(percent, 100);
     }
 
     @Override
