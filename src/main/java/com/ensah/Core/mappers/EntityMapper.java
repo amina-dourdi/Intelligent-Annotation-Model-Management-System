@@ -106,7 +106,7 @@ public class EntityMapper {
         }
         
         if (entity.getCoupleTexte() != null) {
-            dto.setCoupleTexteId(entity.getCoupleTexte().getId());
+            dto.setCoupleTexte(toDTO(entity.getCoupleTexte()));
         }
         return dto;
     }

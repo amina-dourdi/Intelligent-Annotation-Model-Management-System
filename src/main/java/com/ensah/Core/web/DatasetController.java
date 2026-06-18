@@ -33,7 +33,6 @@ public class DatasetController {
     private final ICoupleTexteRepository coupleTexteRepository;
     private final ITacheRepository tacheRepository;
     private final ISpamDetectionService spamDetectionService;
-    private final IMachineLearningService machineLearningService;
     private final com.ensah.Core.dao.IAnnotateurRepository annotateurRepository;
     private final com.ensah.Core.dao.IAnnotationRepository annotationRepository;
     private final com.ensah.Core.dao.IUtilisateurRepository utilisateurRepository;
@@ -47,7 +46,6 @@ public class DatasetController {
                              ITacheRepository tacheRepository,
                              ISpamDetectionService spamDetectionService,
                              IKappaService kappaService,
-                             IMachineLearningService machineLearningService,
                              com.ensah.Core.dao.IAnnotateurRepository annotateurRepository,
                              com.ensah.Core.dao.IAnnotationRepository annotationRepository,
                              com.ensah.Core.dao.IUtilisateurRepository utilisateurRepository,
@@ -60,7 +58,6 @@ public class DatasetController {
         this.tacheRepository = tacheRepository;
         this.spamDetectionService = spamDetectionService;
         this.kappaService = kappaService;
-        this.machineLearningService = machineLearningService;
         this.annotateurRepository = annotateurRepository;
         this.annotationRepository = annotationRepository;
         this.utilisateurRepository = utilisateurRepository;
@@ -265,69 +262,7 @@ public class DatasetController {
         return "redirect:/admin/datasets/" + datasetId + "/spammeurs";
     }
 
-    // ==================== UC3.X : Auto-Annotation (ML Python) ====================
-    @PostMapping("/{id}/auto-annotate")
-    public String autoAnnotate(@PathVariable Long id, RedirectAttributes redirectAttributes) {
-        try {
-            Dataset dataset = datasetService  .getDatasetEntityById(id);
-            if (dataset == null) {
-                redirectAttributes.addFlashAttribute("error", "Dataset introuvable.");
-                return "redirect:/admin/datasets";
-            }
-
-            // 1. Trouver ou créer le Bot ML
-            Annotateur botML = annotateurRepository.findByLogin("bot_ml").orElseGet(() -> {
-                Annotateur bot = new Annotateur();
-                bot.setNom("Bot");
-                bot.setPrenom("Python ML");
-                bot.setLogin("bot_ml");
-                bot.setEmail("bot@nlp.platform");
-                bot.setActif(true);
-                // On met un mot de passe bidon
-                bot.setPassword("BOT_NO_LOGIN");
-                return annotateurRepository.save(bot);
-            });
-
-            // 2. Récupérer quelques textes (ex: les 10 premiers pour éviter que ça ne dure trop longtemps)
-            List<CoupleTexte> couples = coupleTexteRepository.findByDatasetId(id);
-            int count = 0;
-            
-            // Mapper la liste de ClassePossible en une chaine de caracteres
-            String classesStr = dataset.getClassesPossibles().stream()
-                    .map(com.ensah.Core.model.ClassePossible::getTexteClasse)
-                    .reduce((a, b) -> a + "," + b)
-                    .orElse("");
-
-            for (CoupleTexte ct : couples) {
-                // Ne pas dépasser 10 textes pour la démo
-                if (count >= 10) break;
-                
-                // Vérifier si le bot a déjà annoté ce texte
-                boolean dejaAnnote = annotationRepository.findByCoupleTexteId(ct.getId()).stream()
-                        .anyMatch(a -> a.getAnnotateur().getId().equals(botML.getId()));
-                
-                if (!dejaAnnote) {
-                    // Appel au script Python via ProcessBuilder
-                    String prediction = machineLearningService.predictClass(ct.getTexte1(), ct.getTexte2(), classesStr);
-                    
-                    // Si la prédiction fait partie des classes valides (ou est inconnue mais retournée par script)
-                    Annotation annotation = new Annotation();
-                    annotation.setAnnotateur(botML);
-                    annotation.setCoupleTexte(ct);
-                    annotation.setClasseChoisie(prediction);
-                    annotationRepository.save(annotation);
-                    count++;
-                }
-            }
-
-            redirectAttributes.addFlashAttribute("success", "Auto-annotation Python terminée ! " + count + " nouvelles prédictions ajoutées.");
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            redirectAttributes.addFlashAttribute("error", "Erreur lors de l'auto-annotation : " + e.getMessage());
-        }
-        return "redirect:/admin/datasets/" + id;
-    }
+    // Supprimé : Auto-Annotation (ML Python)
 
     // ==================== UC5 : Entraînement NLP ====================
     @GetMapping("/{id}/train")
@@ -352,8 +287,18 @@ public class DatasetController {
             Utilisateur u = utilisateurRepository.findByLogin(login)
                 .orElseThrow(() -> new RuntimeException("Utilisateur introuvable : " + login));
             
-            mlTrainingService.lancerEntrainement(id, u.getId(), epochs, lr, batchSize);
-            redirectAttributes.addFlashAttribute("success", "L'entraînement a été lancé et terminé avec succès.");
+            com.ensah.Core.model.EntrainementModele modele = mlTrainingService.lancerEntrainement(id, u.getId(), epochs, lr, batchSize);
+            
+            if ("ERREUR".equals(modele.getStatut())) {
+                // Check if the logs contain our specific ValueError (with or without accents)
+                if (modele.getLogsConsole() != null && (modele.getLogsConsole().contains("Pas assez de données") || modele.getLogsConsole().contains("Pas assez de donnees"))) {
+                    redirectAttributes.addFlashAttribute("error", "L'entraînement a échoué : Ce dataset n'a pas encore assez de données annotées par des humains. Veuillez annoter au moins 5 textes.");
+                } else {
+                    redirectAttributes.addFlashAttribute("error", "L'entraînement a échoué. Veuillez consulter les logs (bouton 'Logs' dans le tableau) pour voir l'erreur exacte.");
+                }
+            } else {
+                redirectAttributes.addFlashAttribute("success", "L'entraînement a été lancé et terminé avec succès.");
+            }
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", "Erreur lors de l'entraînement : " + e.getMessage());
         }

@@ -6,6 +6,7 @@ import com.ensah.Core.dao.IUtilisateurRepository;
 import com.ensah.Core.model.Administrateur;
 import com.ensah.Core.model.Dataset;
 import com.ensah.Core.model.EntrainementModele;
+import com.ensah.Core.services.IExportService;
 import com.ensah.Core.services.IMlTrainingService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -26,13 +27,16 @@ public class MlTrainingServiceImpl implements IMlTrainingService {
     private final IEntrainementRepository entrainementRepository;
     private final IDatasetRepository datasetRepository;
     private final IUtilisateurRepository utilisateurRepository;
+    private final IExportService exportService;
 
     public MlTrainingServiceImpl(IEntrainementRepository entrainementRepository,
                                  IDatasetRepository datasetRepository,
-                                 IUtilisateurRepository utilisateurRepository) {
+                                 IUtilisateurRepository utilisateurRepository,
+                                 IExportService exportService) {
         this.entrainementRepository = entrainementRepository;
         this.datasetRepository = datasetRepository;
         this.utilisateurRepository = utilisateurRepository;
+        this.exportService = exportService;
     }
 
     @Override
@@ -50,14 +54,19 @@ public class MlTrainingServiceImpl implements IMlTrainingService {
         entrainement = entrainementRepository.save(entrainement);
 
         try {
+            // Création du fichier d'entraînement temporaire à partir des VRAIES annotations
+            byte[] csvBytes = exportService.exportDatasetAnnotations(datasetId);
+            File tempCsv = File.createTempFile("training_data_" + datasetId + "_", ".csv");
+            try (java.io.FileOutputStream fos = new java.io.FileOutputStream(tempCsv)) {
+                fos.write(csvBytes);
+            }
+            
             // Résolution du chemin du script Python
             String pythonScriptPath = Paths.get(System.getProperty("user.dir"), "src", "main", "resources", "python", "train.py").toString();
-            // Création d'un dataset fictif path
-            String datasetPath = dataset.getFichierNom() != null ? dataset.getFichierNom() : "dataset_" + datasetId + ".csv";
 
             ProcessBuilder pb = new ProcessBuilder(
                     "python", pythonScriptPath,
-                    "--dataset_path", datasetPath,
+                    "--dataset_path", tempCsv.getAbsolutePath(),
                     "--epochs", String.valueOf(epochs),
                     "--lr", String.valueOf(lr),
                     "--batch_size", String.valueOf(batchSize)
@@ -71,7 +80,7 @@ public class MlTrainingServiceImpl implements IMlTrainingService {
             Double f1Score = null;
             String confMatrix = null;
 
-            try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream(), java.nio.charset.StandardCharsets.UTF_8))) {
                 String line;
                 while ((line = reader.readLine()) != null) {
                     logs.append(line).append("\n");
