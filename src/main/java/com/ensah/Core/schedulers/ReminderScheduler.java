@@ -24,8 +24,8 @@ public class ReminderScheduler {
     @Autowired
     private com.ensah.Core.dao.IAnnotationRepository annotationRepository;
 
-    // Run every minute for testing. For production, change to: @Scheduled(cron = "0 0 8 * * ?")
-    @Scheduled(cron = "0 * * * * ?")
+    // Exécution une seule fois par jour à 8h00 du matin
+    @Scheduled(cron = "0 0 8 * * ?")
     public void sendReminders() {
         System.out.println("====== CRON JOB DE RAPPEL DÉMARRÉ (" + java.time.LocalDateTime.now() + ") ======");
         LocalDate tomorrow = LocalDate.now().plusDays(1);
